@@ -60,8 +60,8 @@ function App() {
         <div className="fixed inset-0 z-[500] bg-black/80 backdrop-blur-md flex items-center justify-center flex-col gap-6">
           <div className="size-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
           <div className="text-center">
-            <p className="text-white font-black tracking-widest uppercase text-lg animate-pulse mb-1">Mempersiapkan Kartu...</p>
-            <p className="text-white/40 text-xs font-medium italic">Jangan tutup browser sebentar ya...</p>
+            <p className="text-white font-black tracking-widest uppercase text-lg animate-pulse mb-1">Preparing Your Card...</p>
+            <p className="text-white/40 text-xs font-medium italic">High quality export takes a moment...</p>
           </div>
         </div>
       )}
@@ -74,14 +74,14 @@ function App() {
               <span className="material-symbols-outlined text-red-500 text-4xl">warning</span>
             </div>
             <div className="space-y-2">
-              <h3 className="text-xl font-bold text-white uppercase tracking-tight">Ups! Ada Masalah</h3>
+              <h3 className="text-xl font-bold text-white uppercase tracking-tight">Export Issue</h3>
               <p className="text-slate-400 text-sm leading-relaxed">{exportError}</p>
             </div>
             <button 
               onClick={() => setExportError(null)}
               className="w-full py-4 bg-white text-black rounded-2xl font-bold uppercase tracking-widest hover:bg-slate-200 transition-all active:scale-95"
             >
-              Coba Lagi
+              Try Again
             </button>
           </div>
         </div>
@@ -103,25 +103,31 @@ function App() {
             <div className="w-full overflow-hidden rounded-xl shadow-2xl border border-white/5 bg-slate-800">
               <img src={exportImage} alt="Exported Card" className="w-full h-auto" />
             </div>
-            <div className="text-center space-y-2">
-              <h3 className="text-xl font-black text-white uppercase tracking-tight">Kartu Siap!</h3>
-              <p className="text-slate-200 text-sm font-medium p-3 bg-primary/20 rounded-xl border border-primary/30 leading-relaxed">
-                <span className="md:hidden">
-                  <span className="text-primary font-bold">TEKAN LAMA GAMBAR DI ATAS</span><br/>
-                  Lalu pilih <span className="text-primary font-bold">"Simpan Gambar"</span> atau <span className="text-primary font-bold">"Download Image"</span>.
-                </span>
-                <span className="hidden md:block">Right-click the image above and select "Save Image As...".</span>
-              </p>
+            <div className="text-center w-full space-y-4">
+              <h3 className="text-xl font-black text-white uppercase tracking-tight">Card Ready!</h3>
+              
+              <div className="flex flex-col gap-3">
+                <a 
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("this is my social proof card on @accesssptotocol")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-4 bg-[#1DA1F2] hover:bg-[#1DA1F2]/90 text-white rounded-2xl font-bold uppercase tracking-widest shadow-lg transition-all flex items-center justify-center gap-3 active:scale-95"
+                >
+                  <svg className="size-5 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                  Share on X
+                </a>
+                
+                <button 
+                  onClick={() => {
+                    URL.revokeObjectURL(exportImage);
+                    setExportImage(null);
+                  }}
+                  className="w-full py-4 bg-white/5 hover:bg-white/10 text-white/60 rounded-2xl font-bold uppercase tracking-widest transition-all active:scale-95"
+                >
+                  Done
+                </button>
+              </div>
             </div>
-            <button 
-              onClick={() => {
-                URL.revokeObjectURL(exportImage);
-                setExportImage(null);
-              }}
-              className="w-full py-4 bg-primary hover:bg-primary/90 text-white rounded-2xl font-bold uppercase tracking-widest shadow-lg transition-all cursor-pointer active:scale-95"
-            >
-              Selesai / Done
-            </button>
           </div>
         </div>
       )}

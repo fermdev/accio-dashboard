@@ -1,6 +1,10 @@
+import { useState } from 'react';
 import { toPng } from 'html-to-image';
 
 export const useExport = () => {
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportImage, setExportImage] = useState(null);
+
   const handleExport = async (elementId, filename = 'accio-card.png') => {
     const element = document.getElementById(elementId);
     if (!element) {
@@ -8,12 +12,12 @@ export const useExport = () => {
       return;
     }
 
+    setIsExporting(true);
     try {
-      // Use toBlob for better memory management on mobile
-      // Set pixelRatio to 1.2 to reduce file size while maintaining enough quality for clear text
+      // Use pixelRatio 2 for better balance on mobile (1.2 was a bit too low, 2 is standard)
       const dataUrl = await toPng(element, {
         cacheBust: true,
-        pixelRatio: 1.2,
+        pixelRatio: 2, 
         width: 1000,
         height: 525,
         style: {
@@ -22,16 +26,27 @@ export const useExport = () => {
         }
       });
       
+      setExportImage(dataUrl);
+
+      // Attempt automatic download
       const link = document.createElement('a');
       link.href = dataUrl;
       link.download = filename;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      
     } catch (err) {
       console.error('Export failed:', err);
+    } finally {
+      setIsExporting(false);
     }
   };
 
-  return { handleExport };
+  return { 
+    handleExport, 
+    isExporting, 
+    exportImage, 
+    setExportImage 
+  };
 };

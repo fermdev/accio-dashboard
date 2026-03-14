@@ -12,7 +12,7 @@ import './index.css';
 function App() {
   const [inputAddress, setInputAddress] = useState('');
   const { fetchPoolData, poolData, isLoading, error } = useAccessPool();
-  const { handleExport } = useExport();
+  const { handleExport, isExporting, exportImage, setExportImage } = useExport();
   const [mobileTab, setMobileTab] = useState('edit'); // 'edit' | 'preview'
   const [currentView, setCurrentView] = useState('editor'); // 'editor' | 'dashboard' | 'templates' | 'analytics'
   
@@ -47,6 +47,46 @@ function App() {
         currentView={currentView}
         setCurrentView={setCurrentView}
       />
+
+      {/* Exporting Loader Overlay */}
+      {isExporting && (
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center flex-col gap-6">
+          <div className="size-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+          <p className="text-white font-bold tracking-widest uppercase text-sm animate-pulse">Generating Card...</p>
+        </div>
+      )}
+
+      {/* Image Save Overlay (Mobile Fallback) */}
+      {exportImage && (
+        <div className="fixed inset-0 z-[110] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900/50 border border-white/10 rounded-[2rem] p-6 max-w-lg w-full flex flex-col items-center gap-6 shadow-2xl relative">
+            <button 
+              onClick={() => setExportImage(null)}
+              className="absolute -top-4 -right-4 size-10 bg-white text-black rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform cursor-pointer"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+            <div className="w-full overflow-hidden rounded-xl shadow-2xl border border-white/5">
+              <img src={exportImage} alt="Exported Card" className="w-full h-auto" />
+            </div>
+            <div className="text-center space-y-2">
+              <h3 className="text-xl font-black text-white uppercase tracking-tight">Image Ready!</h3>
+              <p className="text-slate-400 text-sm font-medium p-2 bg-primary/10 rounded-lg border border-primary/20">
+                <span className="md:hidden text-primary font-bold">Tekan lama gambar di atas</span> lalu pilih <span className="text-primary font-bold">"Simpan Gambar" (Save Image)</span> untuk mengunduh ke galeri HP Anda.
+              </p>
+              <p className="hidden md:block text-slate-400 text-sm font-medium">
+                Your download should have started. If not, right-click and save the image above.
+              </p>
+            </div>
+            <button 
+              onClick={() => setExportImage(null)}
+              className="w-full py-4 bg-primary hover:bg-primary/90 text-white rounded-2xl font-bold uppercase tracking-widest shadow-lg transition-all cursor-pointer"
+            >
+              Tutup / Done
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Desktop layout */}
       <div className="hidden md:flex flex-1 overflow-hidden">

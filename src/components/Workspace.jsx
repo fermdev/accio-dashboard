@@ -84,25 +84,25 @@ const Workspace = ({ poolData, customizer, exportId = "social-card-export", isEx
         <div className="relative z-10 w-full h-full flex flex-col p-10 justify-between text-left">
           <div className="flex flex-col justify-center flex-1">
             <div className="mb-4">
-              <p className="text-primary text-[14px] font-bold uppercase tracking-[0.4em] mb-3">Creator Profile</p>
-              <h1 className="text-5xl font-black text-white tracking-tighter leading-none soft-text-shadow">{displayData.creatorName}</h1>
+              <p className="text-primary text-[14px] font-bold uppercase tracking-[0.4em] mb-3" style={{ WebkitTextStroke: '0.4px var(--color-primary)' }}>Creator Profile</p>
+              <h1 className="text-5xl font-black text-white tracking-tighter leading-none soft-text-shadow" style={{ WebkitTextStroke: '1.2px white', paintOrder: 'stroke fill' }}>{displayData.creatorName}</h1>
             </div>
             
             <div className="mb-6">
               <p className="text-white/40 text-[14px] font-bold uppercase tracking-[0.2em] mb-2">Total ACS Locked</p>
-              <h2 className="text-6xl font-black text-white tracking-tighter leading-none drop-shadow-2xl soft-text-shadow">
-                {displayData.totalLocked.toLocaleString()} <span className="text-primary text-6xl ml-2">ACS</span>
+              <h2 className="text-6xl font-black text-white tracking-tighter leading-none drop-shadow-2xl soft-text-shadow" style={{ WebkitTextStroke: '1.5px white', paintOrder: 'stroke fill' }}>
+                {displayData.totalLocked.toLocaleString()} <span className="text-primary text-6xl ml-2" style={{ WebkitTextStroke: '1.5px var(--color-primary)' }}>ACS</span>
               </h2>
             </div>
             
             <div className="flex gap-20">
               <div className="flex flex-col">
                 <p className="text-white/40 text-[13px] font-bold uppercase tracking-widest mb-1.5">Stakers</p>
-                <p className="text-4xl font-black text-white leading-none soft-text-shadow">{displayData.stakers.toLocaleString()}</p>
+                <p className="text-4xl font-black text-white leading-none soft-text-shadow" style={{ WebkitTextStroke: '1px white', paintOrder: 'stroke fill' }}>{displayData.stakers.toLocaleString()}</p>
               </div>
               <div className="flex flex-col">
                 <p className="text-white/40 text-[13px] font-bold uppercase tracking-widest mb-1.5">Global Rank</p>
-                <p className="text-4xl font-black text-white leading-none soft-text-shadow">#{displayData.rank}</p>
+                <p className="text-4xl font-black text-white leading-none soft-text-shadow" style={{ WebkitTextStroke: '1px white', paintOrder: 'stroke fill' }}>#{displayData.rank}</p>
               </div>
             </div>
           </div>

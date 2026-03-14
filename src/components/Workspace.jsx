@@ -69,11 +69,7 @@ const Workspace = ({ poolData, customizer, exportId = "social-card-export", isEx
 
         {customizer?.glassEffect && (
           <div 
-            className="absolute inset-0 z-0 bg-white/[0.03]"
-            style={{ 
-              backdropFilter: `blur(${customizer.blurAmount}px)`,
-              WebkitBackdropFilter: `blur(${customizer.blurAmount}px)`
-            }}
+            className="absolute inset-0 z-0 bg-black/60"
           ></div>
         )}
         

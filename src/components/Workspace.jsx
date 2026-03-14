@@ -64,7 +64,9 @@ const Workspace = ({ poolData, customizer, exportId = "social-card-export", isEx
         {useImageBg ? (
           <div className="absolute inset-0">
             <img src={activeArt} alt="Background" className="w-full h-full object-cover" crossOrigin="anonymous" />
-            <div className="absolute inset-0 bg-black/45"></div>
+            <div className="absolute inset-0 bg-black/30"></div>
+            {/* Horizontal gradient overlay for text readability */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
           </div>
         ) : (
           <div 
@@ -180,7 +182,9 @@ const Workspace = ({ poolData, customizer, exportId = "social-card-export", isEx
             {useImageBg ? (
               <div className="absolute inset-0">
                 <img src={activeArt} alt="Background" className="w-full h-full object-cover" crossOrigin="anonymous" />
-                <div className="absolute inset-0 bg-black/45"></div>
+                <div className="absolute inset-0 bg-black/30"></div>
+                {/* Horizontal gradient overlay for text readability */}
+                <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
               </div>
             ) : (
               <div 

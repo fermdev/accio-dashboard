@@ -35,8 +35,8 @@ export const useExport = () => {
 
       const options = {
         cacheBust: true,
-        pixelRatio: 1,
-        quality: 0.8,
+        pixelRatio: 2, // High resolution to match desktop
+        quality: 0.9,  // High quality JPEG
         width: 1000,
         height: 525,
         style: {
@@ -67,7 +67,7 @@ export const useExport = () => {
       
     } catch (err) {
       console.error('Export failed:', err);
-      setExportError("Maaf, proses download gagal. Silakan coba refresh halaman atau gunakan Google Chrome.");
+      setExportError("Sorry, export failed. Please try refreshing or use Google Chrome.");
     } finally {
       setIsExporting(false);
     }

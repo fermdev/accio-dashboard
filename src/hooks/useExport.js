@@ -1,28 +1,26 @@
 import { useState } from 'react';
-import { toPng } from 'html-to-image';
+import { toJpeg } from 'html-to-image';
 
 export const useExport = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [exportImage, setExportImage] = useState(null);
 
-  const handleExport = async (elementId, filename = 'accio-card.png') => {
+  const handleExport = async (elementId, filename = 'accio-card.jpg') => {
     const element = document.getElementById(elementId);
-    if (!element) {
-      console.error(`Element with id ${elementId} not found`);
-      return;
-    }
+    if (!element) return;
 
     setIsExporting(true);
     
-    // Give the browser a moment to render the loading overlay, 
-    // especially important on mobile devices with slower main threads.
-    await new Promise(resolve => setTimeout(resolve, 150));
+    // Slight delay for UI to update
+    await new Promise(resolve => setTimeout(resolve, 200));
 
     try {
-      // Use pixelRatio 2 for better balance on mobile (1.2 was a bit too low, 2 is standard)
-      const dataUrl = await toPng(element, {
+      // Use toJpeg with lower quality and 1.0 pixelRatio to hit the <100KB target
+      // This is MUCH faster and more reliable on mobile devices
+      const dataUrl = await toJpeg(element, {
         cacheBust: true,
-        pixelRatio: 2, 
+        pixelRatio: 1, // Standard resolution (no scaling up)
+        quality: 0.8,  // 80% quality is perfect for web and keeps size very low
         width: 1000,
         height: 525,
         style: {
@@ -48,10 +46,5 @@ export const useExport = () => {
     }
   };
 
-  return { 
-    handleExport, 
-    isExporting, 
-    exportImage, 
-    setExportImage 
-  };
+  return { handleExport, isExporting, exportImage, setExportImage };
 };

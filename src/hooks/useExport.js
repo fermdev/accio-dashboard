@@ -59,13 +59,30 @@ export const useExport = () => {
       const imageUrl = URL.createObjectURL(blob);
       setExportImage(imageUrl);
 
-      // 3. Attempt automatic download
-      const link = document.createElement('a');
-      link.href = imageUrl;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // 3. Robust Download Trigger
+      // Safari Desktop sometimes blocks link.click() if the async context is too long.
+      // We use a small timeout to ensure the DOM has updated.
+      setTimeout(() => {
+        try {
+          const link = document.createElement('a');
+          link.href = imageUrl;
+          link.download = filename;
+          
+          // Safari-specific: visible links sometimes work better
+          link.style.display = 'none';
+          document.body.appendChild(link);
+          
+          link.click();
+          
+          // Clean up
+          setTimeout(() => {
+            document.body.removeChild(link);
+          }, 100);
+        } catch (downloadErr) {
+          console.error("Link click failed, falling back to window.open", downloadErr);
+          window.open(imageUrl, '_blank');
+        }
+      }, 100);
       
     } catch (err) {
       console.error('Export failed:', err);

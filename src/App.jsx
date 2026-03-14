@@ -12,7 +12,14 @@ import './index.css';
 function App() {
   const [inputAddress, setInputAddress] = useState('');
   const { fetchPoolData, poolData, isLoading, error } = useAccessPool();
-  const { handleExport, isExporting, exportImage, setExportImage } = useExport();
+  const { 
+    handleExport, 
+    isExporting, 
+    exportImage, 
+    setExportImage,
+    exportError,
+    setExportError 
+  } = useExport();
   const [mobileTab, setMobileTab] = useState('edit'); // 'edit' | 'preview'
   const [currentView, setCurrentView] = useState('editor'); // 'editor' | 'dashboard' | 'templates' | 'analytics'
   
@@ -26,13 +33,13 @@ function App() {
     gradientColor2: '#1e2440'
   });
 
+  const onExport = () => handleExport('social-card-export', `accio-${poolData?.creatorName || 'card'}.jpg`);
+
   const handleRefresh = () => {
     if (inputAddress.trim()) {
       fetchPoolData(inputAddress.trim());
     }
   };
-
-  const onExport = () => handleExport('social-card-export', `accio-${poolData?.creatorName || 'card'}.png`);
 
   const handleCustomizerChange = (key, value) => {
     setCustomizer(prev => ({ ...prev, [key]: value }));
@@ -50,39 +57,70 @@ function App() {
 
       {/* Exporting Loader Overlay */}
       {isExporting && (
-        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center flex-col gap-6">
+        <div className="fixed inset-0 z-[500] bg-black/80 backdrop-blur-md flex items-center justify-center flex-col gap-6">
           <div className="size-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-          <p className="text-white font-bold tracking-widest uppercase text-sm animate-pulse">Generating Card...</p>
+          <div className="text-center">
+            <p className="text-white font-black tracking-widest uppercase text-lg animate-pulse mb-1">Mempersiapkan Kartu...</p>
+            <p className="text-white/40 text-xs font-medium italic">Jangan tutup browser sebentar ya...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Export Error Overlay */}
+      {exportError && (
+        <div className="fixed inset-0 z-[600] bg-black/90 backdrop-blur-xl flex items-center justify-center p-6">
+          <div className="bg-slate-900 border border-red-500/30 rounded-[2rem] p-8 max-w-md w-full text-center space-y-6 shadow-2xl">
+            <div className="size-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto">
+              <span className="material-symbols-outlined text-red-500 text-4xl">warning</span>
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold text-white uppercase tracking-tight">Ups! Ada Masalah</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">{exportError}</p>
+            </div>
+            <button 
+              onClick={() => setExportError(null)}
+              className="w-full py-4 bg-white text-black rounded-2xl font-bold uppercase tracking-widest hover:bg-slate-200 transition-all active:scale-95"
+            >
+              Coba Lagi
+            </button>
+          </div>
         </div>
       )}
 
       {/* Image Save Overlay (Mobile Fallback) */}
       {exportImage && (
-        <div className="fixed inset-0 z-[110] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[550] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-slate-900/50 border border-white/10 rounded-[2rem] p-6 max-w-lg w-full flex flex-col items-center gap-6 shadow-2xl relative">
             <button 
-              onClick={() => setExportImage(null)}
+              onClick={() => {
+                URL.revokeObjectURL(exportImage);
+                setExportImage(null);
+              }}
               className="absolute -top-4 -right-4 size-10 bg-white text-black rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform cursor-pointer"
             >
               <span className="material-symbols-outlined">close</span>
             </button>
-            <div className="w-full overflow-hidden rounded-xl shadow-2xl border border-white/5">
+            <div className="w-full overflow-hidden rounded-xl shadow-2xl border border-white/5 bg-slate-800">
               <img src={exportImage} alt="Exported Card" className="w-full h-auto" />
             </div>
             <div className="text-center space-y-2">
-              <h3 className="text-xl font-black text-white uppercase tracking-tight">Image Ready!</h3>
-              <p className="text-slate-400 text-sm font-medium p-2 bg-primary/10 rounded-lg border border-primary/20">
-                <span className="md:hidden text-primary font-bold">Tekan lama gambar di atas</span> lalu pilih <span className="text-primary font-bold">"Simpan Gambar" (Save Image)</span> untuk mengunduh ke galeri HP Anda.
-              </p>
-              <p className="hidden md:block text-slate-400 text-sm font-medium">
-                Your download should have started. If not, right-click and save the image above.
+              <h3 className="text-xl font-black text-white uppercase tracking-tight">Kartu Siap!</h3>
+              <p className="text-slate-200 text-sm font-medium p-3 bg-primary/20 rounded-xl border border-primary/30 leading-relaxed">
+                <span className="md:hidden">
+                  <span className="text-primary font-bold">TEKAN LAMA GAMBAR DI ATAS</span><br/>
+                  Lalu pilih <span className="text-primary font-bold">"Simpan Gambar"</span> atau <span className="text-primary font-bold">"Download Image"</span>.
+                </span>
+                <span className="hidden md:block">Right-click the image above and select "Save Image As...".</span>
               </p>
             </div>
             <button 
-              onClick={() => setExportImage(null)}
-              className="w-full py-4 bg-primary hover:bg-primary/90 text-white rounded-2xl font-bold uppercase tracking-widest shadow-lg transition-all cursor-pointer"
+              onClick={() => {
+                URL.revokeObjectURL(exportImage);
+                setExportImage(null);
+              }}
+              className="w-full py-4 bg-primary hover:bg-primary/90 text-white rounded-2xl font-bold uppercase tracking-widest shadow-lg transition-all cursor-pointer active:scale-95"
             >
-              Tutup / Done
+              Selesai / Done
             </button>
           </div>
         </div>
@@ -167,13 +205,15 @@ function App() {
 
       <Footer />
 
-      {/* Hidden Export Target (Always present for capture) */}
+      {/* Hidden Export Target - Robust semi-visibility fix */}
       <div 
-        className="fixed z-[-9999] pointer-events-none select-none" 
+        className="fixed z-[-1000] pointer-events-none select-none opacity-[0.01]" 
         style={{ 
-          transform: 'translate(-5000px, -5000px)',
+          top: 0,
+          left: 0,
           width: '1000px',
-          height: '525px'
+          height: '525px',
+          overflow: 'hidden'
         }}
         aria-hidden="true"
       >

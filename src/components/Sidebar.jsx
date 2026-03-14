@@ -133,6 +133,34 @@ const Sidebar = ({
                 </button>
               </div>
 
+              {customizer.backgroundType === 'image' && (
+                <div className="mt-4 pt-4 border-t border-white/5">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase block mb-3">Select Art</span>
+                  <div className="flex gap-3">
+                    <button 
+                      onClick={() => handleCustomizerChange('selectedBg', 'bg1')}
+                      className={`size-10 rounded-full border-2 transition-all flex items-center justify-center text-[10px] font-black ${
+                        customizer.selectedBg === 'bg1' 
+                          ? 'border-primary bg-primary/20 text-primary shadow-[0_0_15px_rgba(101,145,255,0.3)]' 
+                          : 'border-white/10 bg-white/5 text-white/40 hover:border-white/20'
+                      }`}
+                    >
+                      1
+                    </button>
+                    <button 
+                      onClick={() => handleCustomizerChange('selectedBg', 'bg2')}
+                      className={`size-10 rounded-full border-2 transition-all flex items-center justify-center text-[10px] font-black ${
+                        customizer.selectedBg === 'bg2' 
+                          ? 'border-primary bg-primary/20 text-primary shadow-[0_0_15px_rgba(101,145,255,0.3)]' 
+                          : 'border-white/10 bg-white/5 text-white/40 hover:border-white/20'
+                      }`}
+                    >
+                      2
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {customizer.backgroundType === 'color' && (
                 <div className="mt-4 pt-4 border-t border-white/5 space-y-3">
                   <div className="flex justify-between items-center">

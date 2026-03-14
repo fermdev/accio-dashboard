@@ -29,6 +29,7 @@ function App() {
     glassEffect: false,
     accentColor: '#6591FF',
     backgroundType: 'image',
+    selectedBg: 'bg1', // 'bg1' | 'bg2'
     blurAmount: 12,
     gradientColor1: '#1B1A1A',
     gradientColor2: '#1e2440'

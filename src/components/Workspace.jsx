@@ -1,6 +1,7 @@
 import React from 'react';
 import accessLogo from '../assets/access-logo.png';
-import cardBg from '../assets/card-bg.png';
+import cardBg1 from '../assets/card-bg.png';
+import cardBg2 from '../assets/card-bg2.png';
 
 const Workspace = ({ poolData, customizer, exportId = "social-card-export", isExportOnly = false }) => {
   const containerRef = React.useRef(null);
@@ -41,6 +42,7 @@ const Workspace = ({ poolData, customizer, exportId = "social-card-export", isEx
   };
 
   const useImageBg = customizer?.backgroundType === 'image';
+  const activeArt = customizer?.selectedBg === 'bg2' ? cardBg2 : cardBg1;
 
   if (isExportOnly) {
     return (
@@ -61,7 +63,7 @@ const Workspace = ({ poolData, customizer, exportId = "social-card-export", isEx
       >
         {useImageBg ? (
           <div className="absolute inset-0">
-            <img src={cardBg} alt="Background" className="w-full h-full object-cover" crossOrigin="anonymous" />
+            <img src={activeArt} alt="Background" className="w-full h-full object-cover" crossOrigin="anonymous" />
             <div className="absolute inset-0 bg-black/45"></div>
           </div>
         ) : (
@@ -177,7 +179,7 @@ const Workspace = ({ poolData, customizer, exportId = "social-card-export", isEx
             {/* Background Layer */}
             {useImageBg ? (
               <div className="absolute inset-0">
-                <img src={cardBg} alt="Background" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                <img src={activeArt} alt="Background" className="w-full h-full object-cover" crossOrigin="anonymous" />
                 <div className="absolute inset-0 bg-black/45"></div>
               </div>
             ) : (

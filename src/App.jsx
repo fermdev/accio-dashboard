@@ -166,6 +166,16 @@ function App() {
       </div>
 
       <Footer />
+
+      {/* Hidden Export Target (Always present for capture) */}
+      <div className="fixed -left-[2000px] top-0 opacity-0 pointer-events-none z-[-1]" aria-hidden="true">
+        <Workspace 
+          poolData={effectiveData}
+          customizer={customizer}
+          isExportOnly={true}
+          exportId="social-card-export"
+        />
+      </div>
     </Layout>
   );
 }

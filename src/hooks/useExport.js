@@ -4,6 +4,7 @@ import { toBlob } from 'html-to-image';
 export const useExport = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [exportImage, setExportImage] = useState(null);
+  const [exportBlob, setExportBlob] = useState(null);
   const [exportError, setExportError] = useState(null);
 
   const handleExport = async (elementId, filename = 'accio-card.jpg') => {
@@ -54,6 +55,7 @@ export const useExport = () => {
       
       if (!blob) throw new Error("Failed to generate image blob");
 
+      setExportBlob(blob);
       const imageUrl = URL.createObjectURL(blob);
       setExportImage(imageUrl);
 
@@ -78,6 +80,7 @@ export const useExport = () => {
     isExporting, 
     exportImage, 
     setExportImage,
+    exportBlob,
     exportError,
     setExportError
   };

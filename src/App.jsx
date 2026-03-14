@@ -23,7 +23,6 @@ function App() {
   } = useExport();
   const [mobileTab, setMobileTab] = useState('edit'); // 'edit' | 'preview'
   const [currentView, setCurrentView] = useState('editor'); // 'editor' | 'dashboard' | 'templates' | 'analytics'
-  const [isCopied, setIsCopied] = useState(false);
   
   const [customizer, setCustomizer] = useState({
     showQr: true,
@@ -36,44 +35,6 @@ function App() {
   });
 
   const onExport = () => handleExport('social-card-export', `accio-${poolData?.creatorName || 'card'}.jpg`);
-
-  const handleShareOnX = async () => {
-    const shareText = "this is my social proof card on @accesssptotocol";
-    const shareUrl = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(shareText);
-
-    // 1. Try Web Share API (Mobile)
-    if (navigator.share && navigator.canShare && exportBlob) {
-      const file = new File([exportBlob], 'accio-card.jpg', { type: 'image/jpeg' });
-      if (navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({
-            files: [file],
-            text: shareText,
-          });
-          return; // Success on mobile
-        } catch (err) {
-          if (err.name !== 'AbortError') console.error('Share failed:', err);
-        }
-      }
-    }
-
-    // 2. Fallback: Copy to clipboard and open intent (Desktop)
-    try {
-      if (exportBlob && navigator.clipboard && window.ClipboardItem) {
-        // Most browsers require PNG for clipboard
-        // For simplicity, we'll just try to copy what we have or alert
-        const item = new ClipboardItem({ [exportBlob.type]: exportBlob });
-        await navigator.clipboard.write([item]);
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 3000);
-      }
-    } catch (err) {
-      console.warn('Clipboard copy failed:', err);
-    }
-
-    // Always open the intent as final fallback/secondary action
-    window.open(shareUrl, '_blank');
-  };
 
   const handleRefresh = () => {
     if (inputAddress.trim()) {
@@ -146,36 +107,20 @@ function App() {
             <div className="text-center w-full space-y-4">
               <div className="space-y-1">
                 <h3 className="text-xl font-black text-white uppercase tracking-tight">Card Ready!</h3>
-                {isCopied && (
-                  <p className="text-emerald-400 text-[10px] font-bold uppercase tracking-widest animate-bounce">
-                    Image copied to clipboard!
-                  </p>
-                )}
+                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                  Your image has been downloaded.
+                </p>
               </div>
               
-              <div className="flex flex-col gap-3">
-                <button 
-                  onClick={handleShareOnX}
-                  className="w-full py-4 bg-[#1DA1F2] hover:bg-[#1DA1F2]/90 text-white rounded-2xl font-bold uppercase tracking-widest shadow-lg transition-all flex items-center justify-center gap-3 active:scale-95"
-                >
-                  <svg className="size-5 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                  Share on X
-                </button>
-                
-                <p className="text-slate-500 text-[10px] uppercase tracking-widest font-bold">
-                  {isCopied ? "Paste (Ctrl+V) on X to include image" : "Image downloaded automatically"}
-                </p>
-
-                <button 
-                  onClick={() => {
-                    URL.revokeObjectURL(exportImage);
-                    setExportImage(null);
-                  }}
-                  className="w-full py-4 bg-white/5 hover:bg-white/10 text-white/60 rounded-2xl font-bold uppercase tracking-widest transition-all active:scale-95"
-                >
-                  Done
-                </button>
-              </div>
+              <button 
+                onClick={() => {
+                  URL.revokeObjectURL(exportImage);
+                  setExportImage(null);
+                }}
+                className="w-full py-4 bg-primary hover:bg-primary/90 text-white rounded-2xl font-bold uppercase tracking-widest shadow-lg transition-all active:scale-95"
+              >
+                Done
+              </button>
             </div>
           </div>
         </div>

@@ -13,6 +13,11 @@ export const useExport = () => {
     }
 
     setIsExporting(true);
+    
+    // Give the browser a moment to render the loading overlay, 
+    // especially important on mobile devices with slower main threads.
+    await new Promise(resolve => setTimeout(resolve, 150));
+
     try {
       // Use pixelRatio 2 for better balance on mobile (1.2 was a bit too low, 2 is standard)
       const dataUrl = await toPng(element, {

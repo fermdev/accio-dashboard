@@ -11,9 +11,11 @@ export const useExport = () => {
 
     setIsExporting(true);
     
-    // 500ms delay to ensure the browser paints the loading state 
-    // before the heavy CPU task of image generation starts.
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Ensure the loading overlay is painted to the screen before 
+    // we block the main thread with image generation.
+    // Double RAF + Timeout is the most reliable way to force a paint on mobile.
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    await new Promise(resolve => setTimeout(resolve, 800));
 
     try {
       const options = {

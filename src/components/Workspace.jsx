@@ -46,8 +46,12 @@ const Workspace = ({ poolData, customizer, exportId = "social-card-export", isEx
     return (
       <div 
         id={exportId} 
-        className="relative w-[1000px] h-[525px] flex-shrink-0 social-card-preview rounded-none overflow-hidden"
+        className="relative social-card-preview rounded-none overflow-hidden"
         style={{ 
+          width: '1000px',
+          height: '525px',
+          minWidth: '1000px',
+          minHeight: '525px',
           '--color-primary': customizer?.accentColor || '#8a2ce2',
         }}
       >

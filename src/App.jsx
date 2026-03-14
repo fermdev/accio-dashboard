@@ -168,7 +168,15 @@ function App() {
       <Footer />
 
       {/* Hidden Export Target (Always present for capture) */}
-      <div className="fixed -left-[2000px] -top-[2000px] z-[-100] scale-0 select-none overflow-hidden" aria-hidden="true">
+      <div 
+        className="fixed z-[-9999] pointer-events-none select-none" 
+        style={{ 
+          transform: 'translate(-5000px, -5000px)',
+          width: '1000px',
+          height: '525px'
+        }}
+        aria-hidden="true"
+      >
         <Workspace 
           poolData={effectiveData}
           customizer={customizer}

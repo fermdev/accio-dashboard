@@ -1,23 +1,38 @@
 import { useState } from 'react';
-import { toJpeg } from 'html-to-image';
+import { toBlob } from 'html-to-image';
 
 export const useExport = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [exportImage, setExportImage] = useState(null);
+  const [exportError, setExportError] = useState(null);
 
   const handleExport = async (elementId, filename = 'accio-card.jpg') => {
     const element = document.getElementById(elementId);
-    if (!element) return;
+    if (!element) {
+      setExportError("Download error: System target not found. Please refresh.");
+      return;
+    }
 
+    setExportError(null);
     setIsExporting(true);
     
-    // Ensure the loading overlay is painted to the screen before 
-    // we block the main thread with image generation.
-    // Double RAF + Timeout is the most reliable way to force a paint on mobile.
+    // 800ms delay to guarantee the loading UI is rendered by the browser
     await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     await new Promise(resolve => setTimeout(resolve, 800));
 
     try {
+      // 1. Ensure all images inside the element are loaded
+      const images = element.getElementsByTagName('img');
+      await Promise.all(
+        Array.from(images).map(img => {
+          if (img.complete) return Promise.resolve();
+          return new Promise(resolve => {
+            img.onload = resolve;
+            img.onerror = resolve;
+          });
+        })
+      );
+
       const options = {
         cacheBust: true,
         pixelRatio: 1,
@@ -26,19 +41,25 @@ export const useExport = () => {
         height: 525,
         style: {
           transform: 'scale(1)',
-          borderRadius: '0'
+          borderRadius: '0',
+          visibility: 'visible',
+          opacity: '1'
         }
       };
 
-      // Double-capture for Safari stability (sometimes first call results in blank/skipped resources)
-      await toJpeg(element, options);
-      const dataUrl = await toJpeg(element, options);
+      // 2. Capture as Blob (much more efficient than base64 for mobile)
+      // Double capture for Safari/iOS stability
+      await toBlob(element, options);
+      const blob = await toBlob(element, options);
       
-      setExportImage(dataUrl);
+      if (!blob) throw new Error("Failed to generate image blob");
 
-      // Attempt automatic download
+      const imageUrl = URL.createObjectURL(blob);
+      setExportImage(imageUrl);
+
+      // 3. Attempt automatic download
       const link = document.createElement('a');
-      link.href = dataUrl;
+      link.href = imageUrl;
       link.download = filename;
       document.body.appendChild(link);
       link.click();
@@ -46,10 +67,18 @@ export const useExport = () => {
       
     } catch (err) {
       console.error('Export failed:', err);
+      setExportError("Maaf, proses download gagal. Silakan coba refresh halaman atau gunakan Google Chrome.");
     } finally {
       setIsExporting(false);
     }
   };
 
-  return { handleExport, isExporting, exportImage, setExportImage };
+  return { 
+    handleExport, 
+    isExporting, 
+    exportImage, 
+    setExportImage,
+    exportError,
+    setExportError
+  };
 };

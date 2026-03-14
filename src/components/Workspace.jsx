@@ -53,6 +53,10 @@ const Workspace = ({ poolData, customizer, exportId = "social-card-export", isEx
           minWidth: '1000px',
           minHeight: '525px',
           '--color-primary': customizer?.accentColor || '#8a2ce2',
+          textRendering: 'optimizeLegibility',
+          WebkitFontSmoothing: 'antialiased',
+          MozOsxFontSmoothing: 'grayscale',
+          fontSmooth: 'always'
         }}
       >
         {useImageBg ? (

@@ -78,7 +78,7 @@ const Workspace = ({ poolData, customizer }) => {
             {/* Background Layer */}
             {useImageBg ? (
               <div className="absolute inset-0">
-                <img src={cardBg} alt="Background" className="w-full h-full object-cover" />
+                <img src={cardBg} alt="Background" className="w-full h-full object-cover" crossOrigin="anonymous" />
                 <div className="absolute inset-0 bg-black/45"></div>
               </div>
             ) : (
@@ -137,7 +137,7 @@ const Workspace = ({ poolData, customizer }) => {
               <div className="flex justify-between items-end border-t border-white/10 pt-6 mt-auto">
                 <div className="flex flex-col gap-1.5">
                   <p className="text-white/30 text-[8px] font-bold uppercase tracking-[0.4em]">Powered by</p>
-                  <img src={accessLogo} alt="Access Protocol" className="h-4 opacity-90 w-auto object-contain" />
+                  <img src={accessLogo} alt="Access Protocol" className="h-4 opacity-90 w-auto object-contain" crossOrigin="anonymous" />
                 </div>
                 
                 {customizer?.showQr && (
@@ -147,6 +147,7 @@ const Workspace = ({ poolData, customizer }) => {
                         src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`https://hub.accessprotocol.co/creators/${displayData.poolAddress}`)}`}
                         alt="Stake Now"
                         className="w-full h-full object-contain"
+                        crossOrigin="anonymous"
                       />
                     </div>
                     <div className="flex flex-col items-end justify-center mb-0.5">

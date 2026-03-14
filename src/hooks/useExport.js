@@ -11,23 +11,26 @@ export const useExport = () => {
 
     setIsExporting(true);
     
-    // Slight delay for UI to update
-    await new Promise(resolve => setTimeout(resolve, 200));
+    // 500ms delay to ensure the browser paints the loading state 
+    // before the heavy CPU task of image generation starts.
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     try {
-      // Use toJpeg with lower quality and 1.0 pixelRatio to hit the <100KB target
-      // This is MUCH faster and more reliable on mobile devices
-      const dataUrl = await toJpeg(element, {
+      const options = {
         cacheBust: true,
-        pixelRatio: 1, // Standard resolution (no scaling up)
-        quality: 0.8,  // 80% quality is perfect for web and keeps size very low
+        pixelRatio: 1,
+        quality: 0.8,
         width: 1000,
         height: 525,
         style: {
           transform: 'scale(1)',
           borderRadius: '0'
         }
-      });
+      };
+
+      // Double-capture for Safari stability (sometimes first call results in blank/skipped resources)
+      await toJpeg(element, options);
+      const dataUrl = await toJpeg(element, options);
       
       setExportImage(dataUrl);
 

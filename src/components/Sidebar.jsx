@@ -122,7 +122,7 @@ const Sidebar = ({
                   GRADIENT
                 </button>
                 <button
-                  onClick={() => setCustomizer({ ...customizer, backgroundType: 'image' })}
+                  onClick={() => handleCustomizerChange('backgroundType', 'image')}
                   className={`flex-1 py-3 text-[10px] font-black tracking-[0.2em] rounded-lg transition-all ${
                     customizer.backgroundType === 'image' 
                       ? 'bg-primary text-white shadow-lg' 

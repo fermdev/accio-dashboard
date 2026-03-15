@@ -5,6 +5,7 @@ window.Buffer = window.Buffer || Buffer
 import './index.css'
 import App from './App.jsx'
 import { PrivyProvider } from '@privy-io/react-auth';
+import { toSolanaWalletConnectors } from '@privy-io/react-auth/solana';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -16,6 +17,12 @@ createRoot(document.getElementById('root')).render(
           theme: 'dark',
           accentColor: '#3B82F6',
           showWalletLoginFirst: false,
+          walletChainType: 'solana-only',
+        },
+        externalWallets: {
+          solana: {
+            connectors: toSolanaWalletConnectors(),
+          },
         },
         solanaClusters: [{
           name: 'mainnet-beta',

@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@privy-io/react-auth": "^3.17.0",
+    "@solana/kit": "^6.3.1",
     "@solana/web3.js": "^1.98.4",
     "buffer": "^6.0.3",
     "html-to-image": "^1.11.13",

@@ -1,8 +1,14 @@
+import { Buffer } from 'buffer'
+if (typeof window !== 'undefined' && !window.Buffer) {
+  window.Buffer = Buffer
+}
+if (typeof global !== 'undefined' && !global.Buffer) {
+  global.Buffer = Buffer
+}
+
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-// Deployment trigger: Privy Solana Integration v1.0.1
-import { Buffer } from 'buffer'
-window.Buffer = window.Buffer || Buffer
+// Deployment trigger: Privy Solana Integration v1.0.2
 import './index.css'
 import App from './App.jsx'
 import { PrivyProvider } from '@privy-io/react-auth';
@@ -25,11 +31,10 @@ createRoot(document.getElementById('root')).render(
             connectors: toSolanaWalletConnectors(),
           },
         },
-        solana: {
-          rpcs: {
-            'mainnet-beta': 'https://api.mainnet-beta.solana.com',
-          },
-        },
+        solanaClusters: [{
+          name: 'mainnet-beta',
+          rpcUrl: 'https://api.mainnet-beta.solana.com',
+        }],
       }}
     >
       <App />

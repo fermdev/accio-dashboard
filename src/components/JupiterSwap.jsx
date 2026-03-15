@@ -25,7 +25,7 @@ const JupiterSwap = () => {
             endpoint: 'https://rpc.ankr.com/solana', // More stable than the default mainnet-beta
             strictTokenList: false,
             formProps: {
-              fixedInputMint: false,
+              fixedInputMint: true,
               fixedOutputMint: true,
               initialInputMint: 'So11111111111111111111111111111111111111112', // SOL
               initialOutputMint: '5MAYDfq5yxtudAhtfyuMBuHZjgAbaS9tbEyEQYAhDS5y', // ACS

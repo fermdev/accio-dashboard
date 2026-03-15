@@ -26,6 +26,6 @@ export default defineConfig({
     'global': 'window',
   },
   optimizeDeps: {
-    include: ['react-qr-code', 'buffer', '@solana/web3.js'],
+    include: ['buffer', '@solana/web3.js'],
   }
 })

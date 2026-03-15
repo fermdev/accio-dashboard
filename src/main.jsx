@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+// Deployment trigger: Privy Solana Integration v1.0.1
 import { Buffer } from 'buffer'
 window.Buffer = window.Buffer || Buffer
 import './index.css'

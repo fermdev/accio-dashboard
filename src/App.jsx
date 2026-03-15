@@ -6,6 +6,7 @@ import Sidebar from './components/Sidebar';
 import Workspace from './components/Workspace';
 import Footer from './components/Footer';
 import ComingSoon from './components/ComingSoon';
+import JupiterSwap from './components/JupiterSwap';
 import { useAccessPool } from './hooks/useAccessPool';
 import { useExport } from './hooks/useExport';
 import './index.css';
@@ -147,6 +148,8 @@ function App() {
               customizer={customizer}
             />
           </>
+        ) : currentView === 'market' ? (
+          <JupiterSwap key="jupiter-market-desktop" />
         ) : (
           <ComingSoon title={currentView} />
         )}
@@ -197,6 +200,19 @@ function App() {
               >
                 <span className="material-symbols-outlined text-lg">credit_card</span>
                 Preview
+              </button>
+            </div>
+          </>
+        ) : currentView === 'market' ? (
+          <>
+            <JupiterSwap key="jupiter-market-mobile" />
+            <div className="flex border-t border-primary/20 bg-background-dark shrink-0">
+              <button
+                onClick={() => setCurrentView('editor')}
+                className="flex-1 flex flex-col items-center justify-center py-3 gap-1 text-[10px] font-bold text-slate-500 uppercase tracking-widest transition-colors"
+              >
+                <span className="material-symbols-outlined text-lg">arrow_back</span>
+                Back to Editor
               </button>
             </div>
           </>

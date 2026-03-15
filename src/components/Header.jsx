@@ -23,6 +23,14 @@ const Header = ({ onExport, currentView, setCurrentView }) => {
           Dashboard
         </button>
         <button 
+          onClick={() => setCurrentView('market')}
+          className={`text-sm font-medium transition-colors cursor-pointer pb-1 border-b-2 ${
+            currentView === 'market' ? 'text-white border-primary' : 'text-slate-400 border-transparent hover:text-white'
+          }`}
+        >
+          Market
+        </button>
+        <button 
           onClick={() => setCurrentView('editor')}
           className={`text-sm font-medium transition-colors cursor-pointer pb-1 border-b-2 ${
             currentView === 'editor' ? 'text-white border-primary' : 'text-slate-400 border-transparent hover:text-white'

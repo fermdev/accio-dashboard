@@ -2,10 +2,11 @@
 import { Buffer } from 'buffer'
 window.Buffer = window.Buffer || Buffer
 window.global = window.global || window
+window.process = window.process || { env: {} }
 
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-// Deployment trigger: Privy Solana Integration v1.0.3
+// Deployment trigger: Privy Solana Integration v1.0.4
 import './index.css'
 import App from './App.jsx'
 import { PrivyProvider } from '@privy-io/react-auth';
@@ -20,7 +21,6 @@ createRoot(document.getElementById('root')).render(
         appearance: {
           theme: 'dark',
           accentColor: '#3B82F6',
-          showWalletLoginFirst: false,
           walletChainType: 'solana-only',
         },
         externalWallets: {
@@ -33,10 +33,6 @@ createRoot(document.getElementById('root')).render(
             'solana:mainnet': 'https://api.mainnet-beta.solana.com',
           },
         },
-        solanaClusters: [{
-          name: 'mainnet-beta',
-          rpcUrl: 'https://api.mainnet-beta.solana.com',
-        }],
       }}
     >
       <App />

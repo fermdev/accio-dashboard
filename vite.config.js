@@ -9,7 +9,6 @@ export default defineConfig({
     react(), 
     tailwindcss(),
     nodePolyfills({
-      include: ['buffer', 'stream', 'util'],
       globals: {
         Buffer: true,
         global: true,
@@ -17,14 +16,6 @@ export default defineConfig({
       },
     }),
   ],
-  resolve: {
-    alias: {
-      buffer: 'buffer',
-    },
-  },
-  define: {
-    'global': 'window',
-  },
   optimizeDeps: {
     include: ['buffer', '@solana/web3.js'],
   }

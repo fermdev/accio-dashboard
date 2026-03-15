@@ -25,10 +25,11 @@ createRoot(document.getElementById('root')).render(
             connectors: toSolanaWalletConnectors(),
           },
         },
-        solanaClusters: [{
-          name: 'mainnet-beta',
-          rpcUrl: 'https://api.mainnet-beta.solana.com',
-        }],
+        solana: {
+          rpcs: {
+            'mainnet-beta': 'https://api.mainnet-beta.solana.com',
+          },
+        },
       }}
     >
       <App />

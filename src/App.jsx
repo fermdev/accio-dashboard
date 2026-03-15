@@ -8,12 +8,14 @@ import Footer from './components/Footer';
 import ComingSoon from './components/ComingSoon';
 import JupiterSwap from './components/JupiterSwap';
 import { useAccessPool } from './hooks/useAccessPool';
+import { useSubscriber } from './hooks/useSubscriber';
 import { useExport } from './hooks/useExport';
 import './index.css';
 
 function App() {
   const [inputAddress, setInputAddress] = useState('');
-  const { fetchPoolData, poolData, isLoading, error } = useAccessPool();
+  const { fetchPoolData, poolData, isLoading: isCreatorLoading, error: creatorError } = useAccessPool();
+  const { fetchSubscriberData, subscriberData, isLoading: isStakerLoading, error: stakerError } = useSubscriber();
   const { 
     handleExport, 
     isExporting, 
@@ -27,6 +29,7 @@ function App() {
   const [currentView, setCurrentView] = useState('editor'); // 'editor' | 'dashboard' | 'templates' | 'analytics'
   
   const [customizer, setCustomizer] = useState({
+    type: 'creator', // 'creator' | 'staker'
     showQr: true,
     glassEffect: false,
     accentColor: '#6591FF',
@@ -40,8 +43,12 @@ function App() {
   const onExport = () => handleExport('social-card-export', `accio-${poolData?.creatorName || 'card'}.jpg`);
 
   const handleRefresh = () => {
-    if (inputAddress.trim()) {
+    if (!inputAddress.trim()) return;
+    
+    if (customizer.type === 'creator') {
       fetchPoolData(inputAddress.trim());
+    } else {
+      fetchSubscriberData(inputAddress.trim());
     }
   };
 
@@ -49,7 +56,10 @@ function App() {
     setCustomizer(prev => ({ ...prev, [key]: value }));
   };
 
+  const isLoading = customizer.type === 'creator' ? isCreatorLoading : isStakerLoading;
+  const error = customizer.type === 'creator' ? creatorError : stakerError;
   const effectiveData = poolData;
+  const effectiveStakerData = subscriberData;
 
   return (
     <Layout>
@@ -145,6 +155,7 @@ function App() {
             />
             <Workspace 
               poolData={effectiveData}
+              stakerData={effectiveStakerData}
               customizer={customizer}
             />
           </>
@@ -176,6 +187,7 @@ function App() {
               <div className="flex-1 flex overflow-hidden">
                 <Workspace 
                   poolData={effectiveData}
+                  stakerData={effectiveStakerData}
                   customizer={customizer}
                 />
               </div>
@@ -237,6 +249,7 @@ function App() {
       >
         <Workspace 
           poolData={effectiveData}
+          stakerData={effectiveStakerData}
           customizer={customizer}
           isExportOnly={true}
           exportId="social-card-export"

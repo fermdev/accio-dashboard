@@ -6,7 +6,7 @@ window.process = window.process || { env: {} }
 
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-// Deployment trigger: Privy Solana Integration v1.0.5
+// Deployment trigger: Privy Solana Integration v1.0.6
 import './index.css'
 import App from './App.jsx'
 import { PrivyProvider } from '@privy-io/react-auth';
@@ -22,6 +22,8 @@ createRoot(document.getElementById('root')).render(
           theme: 'dark',
           accentColor: '#3B82F6',
           walletChainType: 'solana-only',
+          showWalletLoginFirst: true,
+          walletList: ['phantom', 'solflare', 'jupiter', 'backpack'],
         },
         externalWallets: {
           solana: {

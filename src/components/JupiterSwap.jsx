@@ -108,7 +108,7 @@ const JupiterSwap = () => {
               <div className="space-y-3">
                 <h3 className="text-3xl font-black text-white tracking-tight uppercase italic text-white text-center">Welcome to Accio</h3>
                 <p className="text-slate-400 text-sm font-medium leading-relaxed">
-                  Sign in with Email or Google to start swapping SOL to ACS securely.
+                  Sign in with Wallet, Google or Email to start swapping SOL to ACS securely.
                 </p>
               </div>
             </div>

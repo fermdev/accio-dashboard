@@ -15,6 +15,36 @@ const Sidebar = ({
     <aside className={`${isMobile ? 'w-full' : 'w-96'} border-r border-primary/10 bg-background-dark/50 overflow-y-auto custom-scrollbar z-10 shrink-0`}>
       <div className="p-6 flex flex-col gap-8">
         
+        {/* Mode Selector */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 text-primary">
+            <span className="material-symbols-outlined text-base">style</span>
+            <h3 className="text-xs font-bold uppercase tracking-widest">Mode Selector</h3>
+          </div>
+          <div className="flex gap-2 p-1 bg-black/20 rounded-xl">
+            <button 
+              onClick={() => handleCustomizerChange('type', 'creator')}
+              className={`flex-1 py-3 text-[10px] font-black tracking-[0.2em] rounded-lg transition-all ${
+                customizer.type === 'creator' 
+                  ? 'bg-primary text-white shadow-lg' 
+                  : 'bg-white/5 text-white/40 hover:bg-white/10'
+              }`}
+            >
+              CREATOR
+            </button>
+            <button
+              onClick={() => handleCustomizerChange('type', 'staker')}
+              className={`flex-1 py-3 text-[10px] font-black tracking-[0.2em] rounded-lg transition-all ${
+                customizer.type === 'staker' 
+                  ? 'bg-primary text-white shadow-lg' 
+                  : 'bg-white/5 text-white/40 hover:bg-white/10'
+              }`}
+            >
+              STAKER
+            </button>
+          </div>
+        </section>
+
         {/* Step 1: Data Source */}
         <section className="space-y-4">
           <div className="flex items-center gap-2 text-primary">
@@ -23,14 +53,16 @@ const Sidebar = ({
           </div>
           
           <div className="space-y-2">
-            <label className="text-xs text-slate-400 font-medium ml-1">Solana Pool Address</label>
+            <label className="text-xs text-slate-400 font-medium ml-1">
+              {customizer.type === 'creator' ? 'Solana Pool Address' : 'Subscriber Wallet Address'}
+            </label>
             <div className="relative group">
               <input 
                 className="w-full bg-slate-900/50 border border-primary/20 rounded-xl px-4 py-3.5 text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all pr-10 disabled:opacity-50 font-mono" 
                 type="text" 
                 value={inputAddress}
                 onChange={(e) => setInputAddress(e.target.value)}
-                placeholder="Paste pool address..."
+                placeholder={customizer.type === 'creator' ? "Paste pool address..." : "Paste wallet address..."}
                 disabled={isLoading}
               />
               {inputAddress && (
@@ -53,7 +85,7 @@ const Sidebar = ({
             <span className={`material-symbols-outlined text-sm ${isLoading ? 'animate-spin' : 'group-hover:rotate-12 transition-transform'}`}>
               {isLoading ? 'progress_activity' : 'sync'}
             </span>
-            {isLoading ? 'Syncing...' : 'Fetch Pool Stats'}
+            {isLoading ? 'Syncing...' : customizer.type === 'creator' ? 'Fetch Pool Stats' : 'Fetch Staker Stats'}
           </button>
         </section>
 

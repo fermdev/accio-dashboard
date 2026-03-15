@@ -6,7 +6,7 @@ window.process = window.process || { env: {} }
 
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-// Deployment trigger: Privy Solana Integration v1.0.4
+// Deployment trigger: Privy Solana Integration v1.0.5
 import './index.css'
 import App from './App.jsx'
 import { PrivyProvider } from '@privy-io/react-auth';

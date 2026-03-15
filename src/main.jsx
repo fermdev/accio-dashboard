@@ -1,14 +1,11 @@
+// Comprehensive Buffer & Global Polyfills for Solana Wallet Signing
 import { Buffer } from 'buffer'
-if (typeof window !== 'undefined' && !window.Buffer) {
-  window.Buffer = Buffer
-}
-if (typeof global !== 'undefined' && !global.Buffer) {
-  global.Buffer = Buffer
-}
+window.Buffer = window.Buffer || Buffer
+window.global = window.global || window
 
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-// Deployment trigger: Privy Solana Integration v1.0.2
+// Deployment trigger: Privy Solana Integration v1.0.3
 import './index.css'
 import App from './App.jsx'
 import { PrivyProvider } from '@privy-io/react-auth';
@@ -29,6 +26,11 @@ createRoot(document.getElementById('root')).render(
         externalWallets: {
           solana: {
             connectors: toSolanaWalletConnectors(),
+          },
+        },
+        solana: {
+          rpcs: {
+            'solana:mainnet': 'https://api.mainnet-beta.solana.com',
           },
         },
         solanaClusters: [{

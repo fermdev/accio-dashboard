@@ -114,7 +114,17 @@ const JupiterSwap = () => {
             </div>
             
             <button 
-              onClick={login}
+              onClick={() => login({
+                onError: (err) => {
+                  console.error('Login Error:', err);
+                  // Check if it's a domain/origin issue
+                  if (err.toString().includes('origin')) {
+                    alert('Login failed: Please ensure https://accio-v1.vercel.app is whitelisted in Privy Dashboard -> Domains');
+                  } else {
+                    alert('Login failed: ' + err);
+                  }
+                }
+              })}
               className="w-full py-5 bg-white text-black rounded-2xl font-black uppercase tracking-[0.2em] hover:bg-slate-200 transition-all active:scale-95 text-[10px] shadow-[0_0_40px_rgba(255,255,255,0.1)] hover:shadow-[0_0_60px_rgba(255,255,255,0.2)]"
             >
               Sign In / Login

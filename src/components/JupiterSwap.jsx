@@ -22,7 +22,7 @@ const JupiterSwap = () => {
           window.Jupiter.init({
             displayMode: 'integrated',
             integratedTargetId: 'jupiter-terminal-container',
-            endpoint: 'https://rpc.ankr.com/solana', // More stable than the default mainnet-beta
+            endpoint: 'https://api.mainnet-beta.solana.com', 
             strictTokenList: false,
             formProps: {
               fixedInputMint: true,

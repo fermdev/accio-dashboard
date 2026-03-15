@@ -22,7 +22,7 @@ const JupiterSwap = () => {
           window.Jupiter.init({
             displayMode: 'integrated',
             integratedTargetId: 'jupiter-terminal-container',
-            // Omit endpoint to let Jupiter use its own default RPC
+            endpoint: 'https://rpc.ankr.com/solana', // More stable than the default mainnet-beta
             strictTokenList: false,
             formProps: {
               fixedInputMint: false,

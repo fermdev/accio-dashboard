@@ -136,7 +136,7 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
               <img 
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
                   isStakerMode 
-                    ? `https://hub.accessprotocol.co/subscribers/${stakerDisplay.address}`
+                    ? `https://hub.accessprotocol.co/en`
                     : `https://hub.accessprotocol.co/creators/${creatorDisplay.poolAddress}`
                 )}`}
                 alt="Stake Now"
@@ -150,7 +150,7 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
               </p>
               <p className="text-white/50 text-[10px] font-mono">
                 {isStakerMode 
-                  ? `hub.accessprotocol.co/...${stakerDisplay.address.slice(-6)}`
+                  ? `hub.accessprotocol.co/en`
                   : `hub.accessprotocol.co/...${creatorDisplay.poolAddress.slice(-6)}`
                 }
               </p>

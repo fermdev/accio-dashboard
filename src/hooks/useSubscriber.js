@@ -3,15 +3,76 @@ import { Connection, PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 
 const ACCESS_PROGRAM_ID = new PublicKey('6HW8dXjtiTGkD4jzXs7igdFmZExPpmwUrRN5195xGup');
-const ACCESS_UPDATE_AUTHORITY = '97VhuEes8ExokBvG7hxyexpFPGzZu18SZERVKseqVV9';
-const METAPLEX_PROGRAM_ID = new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s');
-const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+const HUB_API_BASE = 'https://go-api.accessprotocol.co';
+const HUB_HEADERS = {
+  'Origin': 'https://hub.accessprotocol.co',
+  'Referer': 'https://hub.accessprotocol.co/',
+  'Accept': 'application/json'
+};
 
 const RPC_ENDPOINTS = [
   'https://rpc.ankr.com/solana',
   'https://api.mainnet-beta.solana.com',
   'https://solana.publicnode.com'
 ];
+
+// DAS API endpoint via Vite proxy (avoids CORS 403 from mainnet-beta when called from browser)
+const DAS_RPC = '/das-rpc';
+
+// Global cache for the pool list to avoid re-fetching on every user fetch
+let cachedPoolList = null;
+let lastPoolFetchTime = 0;
+const POOL_CACHE_DURATION = 1000 * 60 * 60; // 1 hour
+
+/**
+ * Fetches subscription type counts (Forever/Redeemable) via DAS API.
+ * Scans all NFTs owned by the address and finds ones with "Subscription Type" attribute.
+ */
+const fetchSubscriptionTypeCounts = async (userAddress) => {
+  let forever = 0;
+  let redeemable = 0;
+  let page = 1;
+
+  try {
+    while (true) {
+      const res = await fetch(DAS_RPC, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'get-assets-page-' + page,
+          method: 'getAssetsByOwner',
+          params: {
+            ownerAddress: userAddress,
+            page,
+            limit: 1000,
+            displayOptions: { showFungible: false }
+          }
+        })
+      });
+
+      if (!res.ok) break;
+      const data = await res.json();
+      const items = data.result?.items || [];
+      if (items.length === 0) break;
+
+      // Count subscription types
+      items.forEach(item => {
+        const attrs = item.content?.metadata?.attributes || [];
+        const typeAttr = attrs.find(a => a.trait_type === 'Subscription Type');
+        if (typeAttr?.value === 'Forever') forever++;
+        else if (typeAttr?.value === 'Redeemable') redeemable++;
+      });
+
+      if (items.length < 1000) break;
+      page++;
+    }
+  } catch (e) {
+    console.warn('[useSubscriber] DAS API subscription type fetch failed:', e.message);
+  }
+
+  return { forever, redeemable };
+};
 
 export const useSubscriber = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,128 +83,112 @@ export const useSubscriber = () => {
     if (!userAddress) return;
     setIsLoading(true);
     setError(null);
-    console.log('Fetching subscriber data for:', userAddress);
+    console.log('[useSubscriber] Starting optimized fetch for:', userAddress);
 
-    for (const endpoint of RPC_ENDPOINTS) {
+    try {
+      const userPkStr = userAddress.trim();
+      
+      // 1. Get Pool List (from cache or API)
+      let poolList = cachedPoolList;
+      const now = Date.now();
+      if (!poolList || (now - lastPoolFetchTime > POOL_CACHE_DURATION)) {
+        console.log('[useSubscriber] Fetching/Refreshing creator pools...');
+        const poolsRes = await fetch(`${HUB_API_BASE}/pools?order=supporters&per_page=500`, { headers: HUB_HEADERS });
+        if (!poolsRes.ok) throw new Error('Failed to fetch pools');
+        const poolsData = await poolsRes.json();
+        poolList = Object.values(poolsData).filter(p => p && p.Pubkey);
+        cachedPoolList = poolList;
+        lastPoolFetchTime = now;
+      }
+      console.log(`[useSubscriber] Scanning ${poolList.length} pools with high concurrency...`);
+
+      let totalAcs = 0n;
+      const foundPools = new Set();
+      
+      // 2. High Concurrency Scanning + Subscription Type Fetch (in parallel)
+      const CONCURRENCY = 25; 
+      const poolQueue = [...poolList];
+      
+      const scanWorker = async () => {
+        while (poolQueue.length > 0) {
+          const pool = poolQueue.shift();
+          if (!pool) break;
+          
+          try {
+            const supRes = await fetch(`${HUB_API_BASE}/supporters/${pool.Pubkey}/locked?per_page=1000`, { 
+              headers: HUB_HEADERS,
+              // Add a bit of timeout logic if possible, though fetch timeout is tricky in browser
+            });
+            
+            if (supRes.ok) {
+              const supData = await supRes.json();
+              const supporters = Array.isArray(supData) ? supData : (supData.supporters || []);
+              const supporter = supporters.find(s => s.pubkey === userPkStr || s.address === userPkStr);
+              if (supporter) {
+                const amount = BigInt(supporter.amount);
+                console.log(`[useSubscriber] Found in ${pool.Name}: ${amount.toString()}`);
+                totalAcs += amount;
+                foundPools.add(pool.Pubkey);
+              }
+            }
+          } catch (e) {
+            // Ignore individual failures
+          }
+        }
+      };
+
+      // Start pool scan workers AND subscription type fetch in parallel
+      const workers = Array(CONCURRENCY).fill(0).map(() => scanWorker());
+      const [, typeCounts] = await Promise.all([
+        Promise.all(workers),
+        fetchSubscriptionTypeCounts(userPkStr)
+      ]);
+
+      // 3. Fast On-Chain Fallback
+      console.log('[useSubscriber] Fast on-chain check...');
+      // We only check the most reliable RPC
+      const connection = new Connection(RPC_ENDPOINTS[0], 'confirmed');
+      const userPk = new PublicKey(userPkStr);
       try {
-        console.log(`Trying RPC: ${endpoint}`);
-        const connection = new Connection(endpoint, 'confirmed');
-        const userPk = new PublicKey(userAddress.trim());
-
-        // 1. Fetch Regular Staking (StakeAccount - Tag 3)
-        console.log('Fetching regular stake accounts...');
-        const regularAccountsPromise = connection.getProgramAccounts(ACCESS_PROGRAM_ID, {
+        const regAccounts = await connection.getProgramAccounts(ACCESS_PROGRAM_ID, {
           filters: [
             { dataSize: 89 },
-            { memcmp: { offset: 0, bytes: '4' } }, // Tag::StakeAccount (3) in base58 is '4'
+            { memcmp: { offset: 0, bytes: '4' } }, 
             { memcmp: { offset: 1, bytes: userPk.toBase58() } }
           ]
         });
 
-        // 2. Fetch Token Accounts to find potential tNFTs
-        console.log('Fetching token accounts...');
-        const tokenAccountsPromise = connection.getTokenAccountsByOwner(userPk, {
-          programId: TOKEN_PROGRAM_ID
-        });
-
-        const [regAccounts, tokenAccountsRes] = await Promise.all([regularAccountsPromise, tokenAccountsPromise]);
-        console.log(`Found ${regAccounts.length} regular stake accounts and ${tokenAccountsRes.value.length} token accounts`);
-        
-        const potentialMints = tokenAccountsRes.value
-          .filter(ta => {
-            const amount = Buffer.from(ta.account.data).readBigUInt64LE(64);
-            return amount === 1n;
-          })
-          .map(ta => new PublicKey(ta.account.data.slice(0, 32)));
-        
-        console.log(`Potential mints ( NFTs): ${potentialMints.length}`);
-
-        // 3. Batch fetch Metadata for potential mints to identify Access NFTs
-        const accessMints = [];
-        if (potentialMints.length > 0) {
-          const metadataPdas = potentialMints.map(mint => 
-            PublicKey.findProgramAddressSync(
-              [Buffer.from('metadata'), METAPLEX_PROGRAM_ID.toBuffer(), mint.toBuffer()],
-              METAPLEX_PROGRAM_ID
-            )[0]
-          );
-
-          console.log(`Fetching metadata for ${metadataPdas.length} accounts...`);
-          const metadataInfos = await connection.getMultipleAccountsInfo(metadataPdas);
-          metadataInfos.forEach((info, idx) => {
-            if (!info) return;
-            // Metaplex Metadata Layout: Offset 1 is Update Authority (32 bytes)
-            const updateAuth = new PublicKey(info.data.slice(1, 33)).toBase58();
-            if (updateAuth === ACCESS_UPDATE_AUTHORITY) {
-              accessMints.push(potentialMints[idx]);
-            }
-          });
-        }
-        console.log(`Confirmed Access Protocol tNFTs: ${accessMints.length}`);
-
-        // 4. Fetch Bonds for all identified Access Mints
-        // Covers BondAccount (Tag 5) and BondV2Account (Tag 11)
-        const bondResults = [];
-        if (accessMints.length > 0) {
-          console.log('Fetching bond accounts for tNFTs...');
-          const bondPromises = accessMints.map(mint => 
-            connection.getProgramAccounts(ACCESS_PROGRAM_ID, {
-              filters: [
-                { memcmp: { offset: 1, bytes: mint.toBase58() } }
-              ]
-            })
-          );
-          const results = await Promise.all(bondPromises);
-          bondResults.push(...results.flat());
-        }
-
-        const allAccounts = [...regAccounts, ...bondResults];
-        console.log(`Total relevant accounts found: ${allAccounts.length}`);
-
-        let totalStaked = 0;
-        const pools = new Set();
-
-        allAccounts.forEach(({ account }) => {
+        regAccounts.forEach(({ account }) => {
           const data = Buffer.from(account.data);
-          const tag = data[0];
-          let amount = 0n;
-          let poolPk;
-
-          if (tag === 3) { // StakeAccount
-            amount = data.readBigUInt64LE(33);
-            poolPk = new PublicKey(data.slice(41, 73));
-          } else if (tag === 5) { // BondAccount (V1)
-            amount = data.readBigUInt64LE(41); // total_staked
-            poolPk = new PublicKey(data.slice(169, 201));
-          } else if (tag === 11) { // BondV2Account
-            amount = data.readBigUInt64LE(33);
-            poolPk = new PublicKey(data.slice(41, 73));
-          }
-
-          if (amount > 0n) {
-            totalStaked += Number(amount) / 1_000_000;
-            if (poolPk) pools.add(poolPk.toBase58());
+          const amount = data.readBigUInt64LE(33);
+          const poolPk = new PublicKey(data.slice(41, 73)).toBase58();
+          if (!foundPools.has(poolPk)) {
+            totalAcs += amount;
+            foundPools.add(poolPk);
           }
         });
-
-        console.log(`Final aggregation: ${totalStaked} ACS, ${pools.size} pools`);
-
-        setSubscriberData({
-          totalStaked: Math.floor(totalStaked),
-          poolCount: pools.size,
-          address: userAddress
-        });
-        setIsLoading(false);
-        return; // Success!
-
-      } catch (err) {
-        console.error(`Fetch attempt with ${endpoint} failed:`, err);
-        // Continue to next endpoint
+      } catch (e) {
+        console.warn('[useSubscriber] Fast fallback failed, skipping.');
       }
-    }
 
-    setError('Failed to fetch subscription data. Please check the address or try again later.');
-    setIsLoading(false);
+      const finalAcs = Number(totalAcs / 1000000n);
+      console.log(`[useSubscriber] Optimized Result: ${finalAcs} ACS / ${foundPools.size} pools.`);
+      console.log(`[useSubscriber] Types: Forever=${typeCounts.forever}, Redeemable=${typeCounts.redeemable}`);
+
+      setSubscriberData({
+        totalStaked: Math.floor(finalAcs),
+        poolCount: foundPools.size,
+        address: userPkStr,
+        foreverCount: typeCounts.forever,
+        redeemableCount: typeCounts.redeemable
+      });
+      setIsLoading(false);
+
+    } catch (err) {
+      console.error('[useSubscriber] Fetch Error:', err);
+      setError('Speed optimization failed. Please try again.');
+      setIsLoading(false);
+    }
   };
 
   return { fetchSubscriberData, subscriberData, isLoading, error };

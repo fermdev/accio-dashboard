@@ -16,8 +16,16 @@ export default async function handler(req, res) {
       body: JSON.stringify(req.body)
     });
 
+    if (!response.ok) {
+        const text = await response.text();
+        return res.status(response.status).json({ 
+            error: `RPC returned ${response.status}`, 
+            body: text 
+        });
+    }
+
     const data = await response.json();
-    res.status(response.status).json(data);
+    res.status(200).json(data);
   } catch (error) {
     console.error('DAS Proxy Error:', error);
     res.status(500).json({ 

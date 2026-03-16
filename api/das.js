@@ -3,15 +3,14 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const RPC_URL = 'https://wrpc.accessprotocol.co/';
+  // Use the official Solana RPC as the primary target for standard methods
+  const RPC_URL = 'https://api.mainnet-beta.solana.com';
 
   try {
     const response = await fetch(RPC_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Origin': 'https://hub.accessprotocol.co',
-        'Referer': 'https://hub.accessprotocol.co/'
       },
       body: JSON.stringify(req.body)
     });
@@ -27,11 +26,10 @@ export default async function handler(req, res) {
     const data = await response.json();
     res.status(200).json(data);
   } catch (error) {
-    console.error('DAS Proxy Error:', error);
+    console.error('RPC Proxy Error:', error);
     res.status(500).json({ 
-      error: 'Failed to fetch from DAS RPC', 
-      details: error.message,
-      stack: error.stack
+      error: 'Failed to fetch from RPC', 
+      details: error.message
     });
   }
 }

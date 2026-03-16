@@ -1,186 +1,137 @@
 import { useState } from 'react';
 import { Connection, PublicKey } from '@solana/web3.js';
+import { Buffer } from 'buffer';
 
-const MAIN_PROGRAM = new PublicKey('6HW8dXjtiTGkD4jzXs7igdFmZExPpmwUrRN5195xGup');
-const FETCH_TIMEOUT = 12000;
-const DAS_ENDPOINT = window.location.origin + '/api/das';
-const SUPPORTERS_ENDPOINT = window.location.origin + '/api/supporters';
+const ACCESS_PROGRAM_ID = new PublicKey('6HW8dXjtiTGkD4jzXs7igdFmZExPpmwUrRN5195xGup');
+const HUB_API_BASE = 'https://go-api.accessprotocol.co';
+const HUB_HEADERS = {
+  'Origin': 'https://hub.accessprotocol.co',
+  'Referer': 'https://hub.accessprotocol.co/',
+  'Accept': 'application/json'
+};
 
-/**
- * High-Speed Hybrid Sync Hook (cNFT + Hub API + RPC)
- * Captures standard stake and Transferable Subscriptions (cNFTs).
- */
+const RPC_ENDPOINTS = [
+  'https://api.mainnet-beta.solana.com',
+  'https://rpc.ankr.com/solana',
+  'https://solana.publicnode.com'
+];
+
+let cachedPoolList = null;
+let lastPoolFetchTime = 0;
+const POOL_CACHE_DURATION = 1000 * 60 * 60; // 1 hour
+
 export const useSubscriber = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState('');
-  const [subscriberData, setSubscriberData] = useState(null);
   const [error, setError] = useState(null);
-
-  const fetchWithTimeout = async (url, options = {}) => {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
-    try {
-      const response = await fetch(url, { ...options, signal: controller.signal });
-      clearTimeout(id);
-      return response;
-    } catch (e) {
-      clearTimeout(id);
-      throw e;
-    }
-  };
-
-  const fetchCnfts = async (wallet) => {
-    try {
-      setLoadingStatus('Searching for NFTs...');
-      
-      const rpcBody = {
-        jsonrpc: '2.0',
-        id: 'accio-cnft-sync',
-        method: 'getAssetsByOwner',
-        params: { 
-          ownerAddress: wallet, 
-          page: 1, 
-          limit: 1000,
-          displayOptions: {
-            showEmptyTraits: false,
-            showFungible: true,
-            showZeroBalance: false
-          }
-        }
-      };
-
-      // Use proxy to ensure consistent headers and failover
-      const res = await fetchWithTimeout(DAS_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(rpcBody)
-      });
-
-      if (!res || !res.ok) return { total: 0, pools: new Set() };
-      const data = await res.json();
-      const items = data.result?.items || [];
-      
-      let total = 0;
-      const pools = new Set();
-
-      items.forEach(item => {
-        const attributes = item.content?.metadata?.attributes || 
-                           item.metadata?.attributes || 
-                           item.content?.attributes ||
-                           item.attributes || [];
-        
-        const symbol = (item.content?.metadata?.symbol || item.symbol || '').toUpperCase();
-        
-        // Find Amount trait case-insensitively
-        const amountAttr = attributes.find(a => {
-          const t = String(a.trait_type || '').toLowerCase();
-          return t === 'amount' || t === 'staking amount' || t === 'acs amount' || t === 'staked_amount';
-        });
-
-        const isAccess = symbol === 'ACS' || 
-                         String(item.content?.metadata?.name || '').includes('Access') ||
-                         !!amountAttr ||
-                         attributes.some(a => {
-                           const v = String(a.value || '').toLowerCase();
-                           return v.includes('access protocol') || v.includes('acs');
-                         });
-
-        if (isAccess) {
-          if (amountAttr) {
-            const valStr = String(amountAttr.value || '0').split(' ')[0].replace(/,/g, '');
-            const val = parseFloat(valStr);
-            if (!isNaN(val)) total += val;
-          }
-          
-          const poolAttr = attributes.find(a => {
-            const t = String(a.trait_type || '').toLowerCase();
-            return ['creator pool name', 'creator name', 'pool', 'creator', 'subscription pool'].includes(t);
-          });
-          
-          if (poolAttr) pools.add(poolAttr.value);
-          else if (item.content?.metadata?.name) pools.add(item.content.metadata.name);
-          else if (item.id) pools.add(item.id.slice(0, 8) + '...');
-        }
-      });
-
-      console.log(`[Sync] Found ${total} ACS in cNFTs across ${pools.size} pools.`);
-      return { total, pools };
-    } catch (e) {
-      console.warn('[Sync] cNFT check failed:', e);
-      return { total: 0, pools: new Set() };
-    }
-  };
+  const [subscriberData, setSubscriberData] = useState(null);
 
   const fetchSubscriberData = async (userAddress) => {
     if (!userAddress) return;
     setIsLoading(true);
-    setSubscriberData(null);
+    setLoadingStatus('Initializing Scan...');
     setError(null);
-    setLoadingStatus('Syncing Staked Balance...');
+    console.log('[useSubscriber] Starting high-concurrency scan for:', userAddress);
 
     try {
-      const wallet = userAddress.trim();
-      let totalStaked = 0;
-      const activePools = new Set();
-
-      // 1. Parallel Multi-Source Check
-      setLoadingStatus('Checking Hub & NFTs...');
+      const userPkStr = userAddress.trim();
       
-      const [apiResults, cnftResult] = await Promise.all([
-        // Standard API (Always use Proxy to set Origin/Referer correctly)
-        Promise.all(['locked', 'forever', 'redeemable'].map(type => 
-          fetchWithTimeout(`${SUPPORTERS_ENDPOINT}?wallet=${wallet}&type=${type}`).then(r => r.ok ? r.json() : null).catch(() => null)
-        )),
-        // cNFT Logic
-        fetchCnfts(wallet)
-      ]);
+      // 1. Get Pool List (from cache or API)
+      let poolList = cachedPoolList;
+      const now = Date.now();
+      if (!poolList || (now - lastPoolFetchTime > POOL_CACHE_DURATION)) {
+        setLoadingStatus('Registry Fetch...');
+        console.log('[useSubscriber] Fetching/Refreshing creator pools...');
+        const poolsRes = await fetch(`${HUB_API_BASE}/pools?order=supporters&per_page=500`, { headers: HUB_HEADERS });
+        if (!poolsRes.ok) throw new Error('Failed to fetch pools');
+        const poolsData = await poolsRes.json();
+        poolList = Object.values(poolsData).filter(p => p && p.Pubkey);
+        cachedPoolList = poolList;
+        lastPoolFetchTime = now;
+      }
+      setLoadingStatus('Scanning Active Pools...');
+      console.log(`[useSubscriber] Scanning ${poolList.length} pools with high concurrency...`);
 
-      // Process Hub API Results
-      apiResults.forEach(data => {
-        if (data && (data.total || data.total_staked)) {
-          totalStaked += Number(data.total || data.total_staked);
-          if (data.stakers) data.stakers.forEach(s => activePools.add(s.pool_name || s.pool_address));
-        }
-      });
-
-      // Process cNFT Results
-      totalStaked += cnftResult.total;
-      cnftResult.pools.forEach(p => activePools.add(p));
-
-      // 2. Targeted RPC Fallback (Use standard RPC for gPA)
-      if (totalStaked === 0) {
-        setLoadingStatus('Deep Scanning Chain...');
-        try {
-          const connection = new Connection('https://solana.publicnode.com');
-          const userPk = new PublicKey(wallet);
-          const filters = [{ memcmp: { offset: 8, bytes: userPk.toBase58() } }];
-          const accounts = await connection.getProgramAccounts(MAIN_PROGRAM, { filters });
-
-          accounts.forEach(a => {
-            const data = Buffer.from(a.account.data);
-            if (data.length >= 41) {
-              const amt = data.readBigUInt64LE(33);
-              if (amt > 0n && amt < 1000000000000000n) {
-                totalStaked += Number(amt / 1000000n);
-                activePools.add(a.pubkey.toBase58());
+      let totalAcs = 0n;
+      const foundPools = new Set();
+      
+      // 2. High Concurrency Scanning
+      const CONCURRENCY = 25; 
+      const poolQueue = [...poolList];
+      
+      const scanWorker = async () => {
+        while (poolQueue.length > 0) {
+          const pool = poolQueue.shift();
+          if (!pool || !pool.Pubkey) continue;
+          
+          try {
+            const supRes = await fetch(`${HUB_API_BASE}/supporters/${pool.Pubkey}/locked?per_page=1000`, { 
+              headers: HUB_HEADERS,
+            });
+            
+            if (supRes.ok) {
+              const supData = await supRes.json();
+              const supporters = Array.isArray(supData) ? supData : (supData.supporters || []);
+              const supporter = supporters.find(s => s.pubkey === userPkStr || s.address === userPkStr);
+              if (supporter) {
+                const amount = BigInt(Math.floor(Number(supporter.amount)));
+                console.log(`[useSubscriber] Found in ${pool.Name}: ${(Number(amount) / 1000000).toLocaleString()} ACS`);
+                totalAcs += amount;
+                foundPools.add(pool.Pubkey);
               }
             }
-          });
-        } catch (rpcErr) {
-          console.warn('[Sync] RPC fallback failed:', rpcErr);
+          } catch (e) {
+            // Ignore individual fetch failures, maybe Hub API rate limit
+          }
         }
+      };
+
+      // Start pool scan workers
+      const workers = Array(CONCURRENCY).fill(0).map(() => scanWorker());
+      await Promise.all(workers);
+
+      // 3. Fast On-Chain Fallback
+      if (foundPools.size === 0) {
+          setLoadingStatus('Aggregating Results...');
+          console.log('[useSubscriber] Fast on-chain check...');
+          const connection = new Connection(RPC_ENDPOINTS[0], 'confirmed');
+          const userPk = new PublicKey(userPkStr);
+          try {
+            const regAccounts = await connection.getProgramAccounts(ACCESS_PROGRAM_ID, {
+              filters: [
+                { dataSize: 89 },
+                { memcmp: { offset: 0, bytes: '4' } }, 
+                { memcmp: { offset: 1, bytes: userPk.toBase58() } }
+              ]
+            });
+    
+            regAccounts.forEach(({ account }) => {
+              const data = Buffer.from(account.data);
+              const amount = data.readBigUInt64LE(33);
+              const poolPk = new PublicKey(data.slice(41, 73)).toBase58();
+              if (!foundPools.has(poolPk)) {
+                totalAcs += amount;
+                foundPools.add(poolPk);
+              }
+            });
+          } catch (e) {
+            console.warn('[useSubscriber] Fast fallback failed, skipping.');
+          }
       }
 
+      const finalAcs = Number(totalAcs / 1000000n);
+      console.log(`[useSubscriber] Final Result: ${finalAcs} ACS / ${foundPools.size} pools.`);
+
       setSubscriberData({
-        address: wallet,
-        totalStaked: Math.floor(totalStaked),
-        poolCount: activePools.size,
+        address: userPkStr,
+        totalStaked: Math.floor(finalAcs),
+        poolCount: foundPools.size,
         stakeApy: 28.55
       });
-
+      
     } catch (err) {
-      console.error('[Sync] Error:', err);
-      setError('Sync failed. Please check your wallet address.');
+      console.error('[useSubscriber] Error:', err);
+      setError('Sync failed. Please check your wallet address and try again.');
     } finally {
       setIsLoading(false);
       setLoadingStatus('');

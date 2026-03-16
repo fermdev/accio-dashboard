@@ -31,18 +31,41 @@ export const useSubscriber = () => {
   const fetchCnfts = async (wallet) => {
     try {
       setLoadingStatus('Searching for NFTs...');
-      const res = await fetchWithTimeout(DAS_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: 'accio-cnft-sync',
-          method: 'getAssetsByOwner',
-          params: { ownerAddress: wallet, page: 1, limit: 200 } // Increased limit
-        })
-      });
+      
+      const rpcBody = {
+        jsonrpc: '2.0',
+        id: 'accio-cnft-sync',
+        method: 'getAssetsByOwner',
+        params: { ownerAddress: wallet, page: 1, limit: 100 }
+      };
 
-      if (!res.ok) return { total: 0, pools: new Set() };
+      let res;
+      let usedDirect = false;
+
+      // 1. Try Direct WRPC (Often faster/more reliable if CORS allows)
+      try {
+        res = await fetchWithTimeout('https://wrpc.accessprotocol.co/', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(rpcBody)
+        });
+        if (res.ok) usedDirect = true;
+      } catch (e) {
+        console.warn('[Sync] Direct WRPC failed, falling back to proxy');
+      }
+
+      // 2. Fallback to Project Proxy
+      if (!res || !res.ok) {
+        res = await fetchWithTimeout(DAS_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(rpcBody)
+        });
+      }
+
+      if (!res || !res.ok) return { total: 0, pools: new Set() };
       const data = await res.json();
       const items = data.result?.items || [];
       
@@ -53,26 +76,29 @@ export const useSubscriber = () => {
         const attributes = item.content?.metadata?.attributes || [];
         const symbol = item.content?.metadata?.symbol?.toUpperCase();
         
-        // Robust check for Access Protocol NFTs
+        // Permissive detection: Symbol ACS OR has an "Amount" trait
+        const amountAttr = attributes.find(a => a.trait_type?.toLowerCase() === 'amount');
         const isAccess = symbol === 'ACS' || 
-                         attributes.some(a => a.trait_type?.toLowerCase().includes('subscription'));
+                         attributes.some(a => a.trait_type?.toLowerCase().includes('subscription')) ||
+                         !!amountAttr;
 
         if (isAccess) {
-          const amountAttr = attributes.find(a => a.trait_type?.toLowerCase() === 'amount');
           if (amountAttr) {
             const val = parseFloat(amountAttr.value);
             if (!isNaN(val)) total += val;
           }
           
           const poolAttr = attributes.find(a => 
-            ['creator pool name', 'creator name', 'pool'].includes(a.trait_type?.toLowerCase())
+            ['creator pool name', 'creator name', 'pool', 'creator'].includes(a.trait_type?.toLowerCase())
           );
+          
           if (poolAttr) pools.add(poolAttr.value);
+          else if (item.content?.metadata?.name) pools.add(item.content.metadata.name);
           else pools.add(item.id);
         }
       });
 
-      console.log(`[Sync] Found ${total} ACS in cNFTs across ${pools.size} pools.`);
+      console.log(`[Sync] Found ${total} ACS in cNFTs across ${pools.size} pools. (Direct: ${usedDirect})`);
       return { total, pools };
     } catch (e) {
       console.warn('[Sync] cNFT check failed:', e);

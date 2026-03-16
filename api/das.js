@@ -22,8 +22,8 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Use the official Solana RPC as the primary target
-  const RPC_URL = 'https://api.mainnet-beta.solana.com';
+  // Use the official Access Protocol RPC as the primary target for reliability
+  const RPC_URL = 'https://wrpc.accessprotocol.co/';
 
   try {
     const response = await fetch(RPC_URL, {

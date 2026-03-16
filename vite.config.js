@@ -35,6 +35,19 @@ export default defineConfig({
             proxyReq.setHeader('Referer', 'https://hub.accessprotocol.co/');
           });
         }
+      },
+      '/api/supporters': {
+        target: 'https://go-api.accessprotocol.co/supporters/',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/supporters/, ''),
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.removeHeader('origin');
+            proxyReq.removeHeader('referer');
+            proxyReq.setHeader('Origin', 'https://hub.accessprotocol.co');
+            proxyReq.setHeader('Referer', 'https://hub.accessprotocol.co/');
+          });
+        }
       }
     }
   }

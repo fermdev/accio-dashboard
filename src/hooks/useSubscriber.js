@@ -4,6 +4,7 @@ import { Connection, PublicKey } from '@solana/web3.js';
 const MAIN_PROGRAM = new PublicKey('6HW8dXjtiTGkD4jzXs7igdFmZExPpmwUrRN5195xGup');
 const FETCH_TIMEOUT = 12000;
 const DAS_ENDPOINT = window.location.origin + '/api/das';
+const SUPPORTERS_ENDPOINT = window.location.origin + '/api/supporters';
 
 /**
  * High-Speed Hybrid Sync Hook (cNFT + Hub API + RPC)
@@ -49,30 +50,12 @@ export const useSubscriber = () => {
       };
 
       let res;
-      let usedDirect = false;
-
-      // 1. Try Direct WRPC (Often faster/more reliable if CORS allows)
-      try {
-        res = await fetchWithTimeout('https://wrpc.accessprotocol.co/', {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(rpcBody)
-        });
-        if (res.ok) usedDirect = true;
-      } catch (e) {
-        console.warn('[Sync] Direct WRPC failed, falling back to proxy');
-      }
-
-      // 2. Fallback to Project Proxy
-      if (!res || !res.ok) {
-        res = await fetchWithTimeout(DAS_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(rpcBody)
-        });
-      }
+      // ALWAYS use proxy for DAS in production/local to ensure consistent headers
+      res = await fetchWithTimeout(DAS_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(rpcBody)
+      });
 
       if (!res || !res.ok) return { total: 0, pools: new Set() };
       const data = await res.json();
@@ -82,15 +65,22 @@ export const useSubscriber = () => {
       const pools = new Set();
 
       items.forEach(item => {
-        const attributes = item.content?.metadata?.attributes || [];
-        const symbol = item.content?.metadata?.symbol?.toUpperCase();
+        // Deep scan for attributes (sometimes they are nested differently)
+        const attributes = item.content?.metadata?.attributes || item.metadata?.attributes || item.attributes || [];
+        const symbol = (item.content?.metadata?.symbol || item.symbol || '').toUpperCase();
         
-        // Permissive detection: Symbol ACS OR has an "Amount" trait
-        const amountAttr = attributes.find(a => a.trait_type?.toLowerCase() === 'amount');
+        // Find Amount trait case-insensitively
+        const amountAttr = attributes.find(a => {
+          const trait = a.trait_type?.toLowerCase() || '';
+          return trait === 'amount' || trait === 'staking amount' || trait === 'acs amount';
+        });
+
+        // Permissive detection: Name/Symbol ACS OR has an "Amount" trait
         const isAccess = symbol === 'ACS' || 
+                         item.content?.metadata?.name?.includes('Access') ||
                          attributes.some(a => {
                            const trait = a.trait_type?.toLowerCase() || '';
-                           return trait.includes('subscription') || trait.includes('creator');
+                           return trait.includes('subscription') || trait.includes('creator') || trait.includes('access');
                          }) ||
                          !!amountAttr;
 
@@ -100,9 +90,10 @@ export const useSubscriber = () => {
             if (!isNaN(val)) total += val;
           }
           
-          const poolAttr = attributes.find(a => 
-            ['creator pool name', 'creator name', 'pool', 'creator'].includes(a.trait_type?.toLowerCase())
-          );
+          const poolAttr = attributes.find(a => {
+            const trait = a.trait_type?.toLowerCase() || '';
+            return ['creator pool name', 'creator name', 'pool', 'creator', 'subscription pool'].includes(trait);
+          });
           
           if (poolAttr) pools.add(poolAttr.value);
           else if (item.content?.metadata?.name) pools.add(item.content.metadata.name);
@@ -110,7 +101,7 @@ export const useSubscriber = () => {
         }
       });
 
-      console.log(`[Sync] Found ${total} ACS in cNFTs across ${pools.size} pools. (Direct: ${usedDirect})`);
+      console.log(`[Sync] Found ${total} ACS in cNFTs across ${pools.size} pools.`);
       return { total, pools };
     } catch (e) {
       console.warn('[Sync] cNFT check failed:', e);
@@ -135,14 +126,10 @@ export const useSubscriber = () => {
       setLoadingStatus('Checking Hub & NFTs...');
       
       const [apiResults, cnftResult] = await Promise.all([
-        // Standard API (Fixed URL format to match Hub exactly)
+        // Standard API (Always use Proxy to set Origin/Referer correctly)
+        // Using query parameters for maximum Vercel compatibility
         Promise.all(['locked', 'forever', 'redeemable'].map(type => 
-          fetchWithTimeout(`https://go-api.accessprotocol.co/supporters/${wallet}/${type}`, {
-            headers: { 
-              'Origin': 'https://hub.accessprotocol.co',
-              'Referer': 'https://hub.accessprotocol.co/'
-            }
-          }).then(r => r.ok ? r.json() : null).catch(() => null)
+          fetchWithTimeout(`${SUPPORTERS_ENDPOINT}?wallet=${wallet}&type=${type}`).then(r => r.ok ? r.json() : null).catch(() => null)
         )),
         // cNFT Logic
         fetchCnfts(wallet)

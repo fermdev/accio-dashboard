@@ -29,8 +29,13 @@ const POOL_CACHE_DURATION = 1000 * 60 * 60; // 1 hour
  * Scans all NFTs owned by the address and finds ones with "Subscription Type" attribute.
  */
 const fetchSubscriptionTypeCounts = async (userAddress) => {
-  // Try multiple endpoints if the proxy fails
-  const endpoints = [DAS_RPC, 'https://solana-mainnet.g.allnodes.com', 'https://api.mainnet-beta.solana.com'];
+  // Try multiple endpoints if the proxy fails (proxy only works on localhost)
+  const endpoints = [
+    DAS_RPC, 
+    'https://solana.publicnode.com', 
+    'https://solana-mainnet.g.allnodes.com',
+    'https://api.mainnet-beta.solana.com'
+  ];
 
   for (const endpoint of endpoints) {
     let forever = 0;
@@ -40,6 +45,11 @@ const fetchSubscriptionTypeCounts = async (userAddress) => {
 
     try {
       console.log(`[useSubscriber] Attempting subscription type fetch from: ${endpoint}`);
+      // Skip proxy on non-localhost to avoid 404/html responses
+      if (endpoint === DAS_RPC && window.location.hostname !== 'localhost') {
+        continue;
+      }
+
       while (true) {
         const res = await fetch(endpoint, {
           method: 'POST',

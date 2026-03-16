@@ -57,13 +57,6 @@ const Header = ({ onExport, currentView, setCurrentView }) => {
       </nav>
       
       <div className="flex items-center gap-3">
-        <button 
-          onClick={onExport}
-          className="hidden md:flex bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg font-bold text-sm transition-all items-center gap-2 neon-glow cursor-pointer"
-        >
-          <span className="material-symbols-outlined text-sm">download</span>
-          Export as PNG
-        </button>
       </div>
     </header>
   );

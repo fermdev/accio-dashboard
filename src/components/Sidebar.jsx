@@ -252,6 +252,18 @@ const Sidebar = ({
           </div>
         </section>
 
+        <div className="mt-8 pt-6 border-t border-white/5">
+          <button 
+            onClick={onExport}
+            className="w-full bg-white text-black font-black py-4 rounded-xl text-sm tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl flex items-center justify-center gap-2"
+          >
+            <span className="material-symbols-outlined">download</span>
+            EXPORT FULL CARD
+          </button>
+          <p className="text-[10px] text-center text-slate-500 mt-4 uppercase font-bold tracking-widest">
+            PNG High Quality • 1200x630
+          </p>
+        </div>
       </div>
     </aside>
   );

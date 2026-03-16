@@ -22,35 +22,47 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Use the official Access Protocol RPC as the primary target for reliability
-  const RPC_URL = 'https://wrpc.accessprotocol.co/';
+  const RPC_ENDPOINTS = [
+    'https://wrpc.accessprotocol.co/', // Primary (Official)
+    'https://solana.publicnode.com',    // Fallback 1
+    'https://rpc.ankr.com/solana',      // Fallback 2
+    'https://api.mainnet-beta.solana.com' // Fallback 3
+  ];
 
-  try {
-    const response = await fetch(RPC_URL, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Origin': 'https://hub.accessprotocol.co',
-        'Referer': 'https://hub.accessprotocol.co/'
-      },
-      body: JSON.stringify(req.body)
-    });
+  let lastError = null;
+  let lastStatus = 0;
 
-    if (!response.ok) {
-        const text = await response.text();
-        return res.status(response.status).json({ 
-            error: `RPC returned ${response.status}`, 
-            body: text.slice(0, 1000) 
-        });
+  for (const rpcUrl of RPC_ENDPOINTS) {
+    try {
+      const response = await fetch(rpcUrl, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Origin': 'https://hub.accessprotocol.co',
+          'Referer': 'https://hub.accessprotocol.co/'
+        },
+        body: JSON.stringify(req.body)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return res.status(200).json(data);
+      }
+
+      lastStatus = response.status;
+      lastError = `RPC ${rpcUrl} returned ${response.status}`;
+      console.warn(`[Proxy] ${rpcUrl} failed with ${response.status}`);
+      
+      // If it's a 403 or 429, try the next one
+      continue;
+    } catch (error) {
+      lastError = error.message;
+      console.warn(`[Proxy] ${rpcUrl} fetch error: ${error.message}`);
     }
-
-    const data = await response.json();
-    return res.status(200).json(data);
-  } catch (error) {
-    console.error('DAS Proxy Error:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch from RPC', 
-      details: error.message 
-    });
   }
+
+  res.status(lastStatus || 500).json({ 
+    error: lastError || 'All RPC endpoints failed', 
+    details: 'The sync process encountered network restrictions. Please try again in 1 minute.' 
+  });
 }

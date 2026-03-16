@@ -16,8 +16,8 @@ const RPC_ENDPOINTS = [
   'https://solana.publicnode.com'
 ];
 
-// DAS API endpoint via Vite proxy (avoids CORS 403 from mainnet-beta when called from browser)
-const DAS_RPC = '/das-rpc';
+// DAS API endpoint via Vercel Serverless Function (production) or Vite Proxy (development)
+const DAS_RPC = '/api/das';
 
 // Global cache for the pool list to avoid re-fetching on every user fetch
 let cachedPoolList = null;
@@ -29,83 +29,69 @@ const POOL_CACHE_DURATION = 1000 * 60 * 60; // 1 hour
  * Scans all NFTs owned by the address and finds ones with "Subscription Type" attribute.
  */
 const fetchSubscriptionTypeCounts = async (userAddress) => {
-  // Try multiple endpoints if the proxy fails
-  // On Vercel, /das-rpc is handled by a rewrite to mainnet-beta
-  const endpoints = [
-    DAS_RPC, 
-    'https://solana-mainnet.g.allnodes.com',
-    'https://rpc.ankr.com/solana',
-    'https://solana.publicnode.com',
-    'https://api.mainnet-beta.solana.com'
-  ];
+  let forever = 0;
+  let redeemable = 0;
+  let page = 1;
+  let success = false;
 
-  for (const endpoint of endpoints) {
-    let forever = 0;
-    let redeemable = 0;
-    let page = 1;
-    let success = false;
+  try {
+    console.log(`[useSubscriber] Fetching subscription types via DAS proxy: ${DAS_RPC}`);
 
-    try {
-      console.log(`[useSubscriber] Attempting subscription type fetch from: ${endpoint}`);
+    while (true) {
+      const res = await fetch(DAS_RPC, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'get-assets-' + Date.now(),
+          method: 'getAssetsByOwner',
+          params: {
+            ownerAddress: userAddress,
+            page,
+            limit: 1000,
+            displayOptions: { showFungible: false }
+          }
+        })
+      });
 
-      while (true) {
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            jsonrpc: '2.0',
-            id: 'get-assets-' + Date.now(),
-            method: 'getAssetsByOwner',
-            params: {
-              ownerAddress: userAddress,
-              page,
-              limit: 1000,
-              displayOptions: { showFungible: false }
-            }
-          })
-        });
-
-        if (!res.ok) {
-          console.warn(`[useSubscriber] Endpoint ${endpoint} failed with status: ${res.status}`);
-          break;
-        }
-
-        const data = await res.json();
-        if (data.error) {
-          console.warn(`[useSubscriber] Endpoint ${endpoint} returned RPC error:`, data.error);
-          break;
-        }
-
-        const items = data.result?.items || [];
-        if (items.length === 0) break;
-
-        // Count subscription types
-        items.forEach(item => {
-          const attrs = item.content?.metadata?.attributes || [];
-          // Look for Forever/Redeemable in any attribute value for maximum resilience
-          const hasForever = attrs.some(a => String(a.value).toLowerCase() === 'forever');
-          const hasRedeemable = attrs.some(a => String(a.value).toLowerCase() === 'redeemable');
-          
-          if (hasForever) forever++;
-          if (hasRedeemable) redeemable++;
-        });
-
-        if (items.length < 1000) {
-          success = true;
-          break;
-        }
-        page++;
+      if (!res.ok) {
+        console.warn(`[useSubscriber] DAS Proxy failed with status: ${res.status}`);
+        break;
       }
-      
-      // If we successfully queried at least one page and found anything, or finished the whole set
-      if (success) {
-        console.log(`[useSubscriber] Found ${forever} Forever, ${redeemable} Redeemable via ${endpoint}`);
-        return { forever, redeemable };
+
+      const data = await res.json();
+      if (data.error) {
+        console.warn(`[useSubscriber] DAS RPC returned error:`, data.error);
+        break;
       }
-    } catch (e) {
-      console.warn(`[useSubscriber] Fetch via ${endpoint} failed:`, e.message);
-      // Continue to next endpoint
+
+      const items = data.result?.items || [];
+      if (items.length === 0) break;
+
+      // Count subscription types
+      items.forEach(item => {
+        const attrs = item.content?.metadata?.attributes || [];
+        // Look for Forever/Redeemable in any attribute value for maximum resilience
+        const hasForever = attrs.some(a => String(a.value).toLowerCase() === 'forever');
+        const hasRedeemable = attrs.some(a => String(a.value).toLowerCase() === 'redeemable');
+        
+        if (hasForever) forever++;
+        if (hasRedeemable) redeemable++;
+      });
+
+      if (items.length < 1000) {
+        success = true;
+        break;
+      }
+      page++;
     }
+    
+    if (success) {
+      console.log(`[useSubscriber] Found ${forever} Forever, ${redeemable} Redeemable via DAS`);
+      return { forever, redeemable };
+    }
+  } catch (e) {
+    console.warn(`[useSubscriber] DAS fetch failed:`, e.message);
   }
 
   return { forever: 0, redeemable: 0 };
@@ -141,12 +127,12 @@ export const useSubscriber = () => {
         lastPoolFetchTime = now;
       }
       setLoadingStatus('Scanning Active Pools...');
-      console.log(`[useSubscriber] Scanning ${poolList.length} pools with high concurrency...`);
+      console.log(`[useSubscriber] Scanning ${poolList.length} pools...`);
 
       let totalAcs = 0n;
       const foundPools = new Set();
       
-      // 2. High Concurrency Scanning + Subscription Type Fetch (in parallel)
+      // 2. High Concurrency Scanning + Subscription Type Fetch
       const CONCURRENCY = 25; 
       const poolQueue = [...poolList];
       
@@ -158,7 +144,6 @@ export const useSubscriber = () => {
           try {
             const supRes = await fetch(`${HUB_API_BASE}/supporters/${pool.Pubkey}/locked?per_page=1000`, { 
               headers: HUB_HEADERS,
-              // Add a bit of timeout logic if possible, though fetch timeout is tricky in browser
             });
             
             if (supRes.ok) {
@@ -178,8 +163,8 @@ export const useSubscriber = () => {
         }
       };
 
-      // Start pool scan workers AND subscription type fetch in parallel
-      setLoadingStatus('Collecting Subscription Types...');
+      // Start pool scan workers AND subscription type fetch in parallel for speed
+      setLoadingStatus('Collecting Subscriptions...');
       const workers = Array(CONCURRENCY).fill(0).map(() => scanWorker());
       const [, typeCounts] = await Promise.all([
         Promise.all(workers),
@@ -189,7 +174,6 @@ export const useSubscriber = () => {
       // 3. Fast On-Chain Fallback
       setLoadingStatus('Aggregating Results...');
       console.log('[useSubscriber] Fast on-chain check...');
-      // We only check the most reliable RPC
       const connection = new Connection(RPC_ENDPOINTS[0], 'confirmed');
       const userPk = new PublicKey(userPkStr);
       try {

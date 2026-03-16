@@ -22,14 +22,17 @@ export default defineConfig({
   server: {
     proxy: {
       // Proxy DAS API calls to bypass CORS (mainnet-beta blocks browser Origin headers)
-      '/das-rpc': {
-        target: 'https://api.mainnet-beta.solana.com',
+      // Proxy DAS API calls to bypass CORS (consistent with /api/das serverless function)
+      '/api/das': {
+        target: 'https://wrpc.accessprotocol.co/',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/das-rpc/, ''),
+        rewrite: (path) => path.replace(/^\/api\/das/, ''),
         configure: (proxy) => {
           proxy.on('proxyReq', (proxyReq) => {
             proxyReq.removeHeader('origin');
             proxyReq.removeHeader('referer');
+            proxyReq.setHeader('Origin', 'https://hub.accessprotocol.co');
+            proxyReq.setHeader('Referer', 'https://hub.accessprotocol.co/');
           });
         }
       }

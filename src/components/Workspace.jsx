@@ -41,16 +41,18 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
     totalLocked: 22450120,
     stakers: 1240,
     rank: 14,
-    poolAddress: '0x71C765...d897'
+    poolAddress: '0x71C765...d897',
+    stakeApy: 28.55
   };
 
   const stakerDisplay = stakerData || {
     address: 'Abc1...xyz2',
     totalStaked: 500000,
     poolCount: 12,
-    foreverCount: 0,
-    redeemableCount: 0
+    stakeApy: 28.55
   };
+
+  const apyValue = isStakerMode ? (stakerDisplay.stakeApy || 28.55) : (creatorDisplay.stakeApy || 28.55);
 
   const useImageBg = customizer?.backgroundType === 'image';
   const activeArt = customizer?.selectedBg === 'bg4' ? cardBg4 : customizer?.selectedBg === 'bg3' ? cardBg3 : customizer?.selectedBg === 'bg2' ? cardBg2 : cardBg1;
@@ -83,18 +85,12 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
                 <p className="text-white/40 text-[13px] font-black uppercase tracking-widest mb-1.5">Active Pools</p>
                 <p className="text-4xl font-black text-white leading-none tracking-tight soft-text-shadow">{stakerDisplay.poolCount.toLocaleString()}</p>
               </div>
-              {customizer?.showSubscriptionType !== false && (
-                <>
-                  <div className="flex flex-col">
-                    <p className="text-white/40 text-[13px] font-black uppercase tracking-widest mb-1.5">Forever</p>
-                    <p className="text-4xl font-black text-white leading-none tracking-tight soft-text-shadow">{(stakerDisplay.foreverCount ?? 0).toLocaleString()}</p>
-                  </div>
-                  <div className="flex flex-col">
-                    <p className="text-white/40 text-[13px] font-black uppercase tracking-widest mb-1.5">Redeemable</p>
-                    <p className="text-4xl font-black text-white leading-none tracking-tight soft-text-shadow">{(stakerDisplay.redeemableCount ?? 0).toLocaleString()}</p>
-                  </div>
-                </>
-              )}
+              <div className="flex flex-col">
+                <p className="text-primary text-[13px] font-black uppercase tracking-[0.15em] mb-1.5">Stake Rewards APY</p>
+                <p className="text-4xl font-black text-white leading-none tracking-tight soft-text-shadow">
+                  {apyValue.toFixed(2)} <span className="text-primary text-2xl">%</span>
+                </p>
+              </div>
             </div>
           </>
         ) : (
@@ -115,7 +111,7 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
               </h2>
             </div>
             
-            <div className="flex gap-20">
+            <div className="flex gap-16">
               <div className="flex flex-col">
                 <p className="text-white/40 text-[13px] font-black uppercase tracking-widest mb-1.5">Stakers</p>
                 <p className="text-4xl font-black text-white leading-none tracking-tight soft-text-shadow">{creatorDisplay.stakers.toLocaleString()}</p>
@@ -123,6 +119,12 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
               <div className="flex flex-col">
                 <p className="text-white/40 text-[13px] font-black uppercase tracking-widest mb-1.5">Global Rank</p>
                 <p className="text-4xl font-black text-white leading-none tracking-tight soft-text-shadow">#{creatorDisplay.rank}</p>
+              </div>
+              <div className="flex flex-col">
+                <p className="text-primary text-[13px] font-black uppercase tracking-[0.15em] mb-1.5">Stake APY</p>
+                <p className="text-4xl font-black text-white leading-none tracking-tight soft-text-shadow">
+                  {apyValue.toFixed(2)}%
+                </p>
               </div>
             </div>
           </>

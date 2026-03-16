@@ -37,8 +37,7 @@ function App() {
     selectedBg: 'bg1', // 'bg1' | 'bg2'
     blurAmount: 12,
     gradientColor1: '#1B1A1A',
-    gradientColor2: '#1e2440',
-    showSubscriptionType: true
+    gradientColor2: '#1e2440'
   });
 
   const onExport = () => handleExport('social-card-export', `accio-${poolData?.creatorName || 'card'}.jpg`);

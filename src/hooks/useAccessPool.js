@@ -168,7 +168,8 @@ export const useAccessPool = () => {
         stakers,
         rank,
         minStake,
-        poolAddress: poolAddressStr
+        poolAddress: poolAddressStr,
+        stakeApy: 28.55
       });
 
     } catch (err) {

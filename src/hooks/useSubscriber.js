@@ -33,42 +33,64 @@ const fetchSubscriptionTypeCounts = async (userAddress) => {
   let redeemable = 0;
   let page = 1;
 
-  try {
-    while (true) {
-      const res = await fetch(DAS_RPC, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: 'get-assets-page-' + page,
-          method: 'getAssetsByOwner',
-          params: {
-            ownerAddress: userAddress,
-            page,
-            limit: 1000,
-            displayOptions: { showFungible: false }
-          }
-        })
-      });
+  // Try multiple endpoints if the proxy fails
+  const endpoints = [DAS_RPC, 'https://solana-mainnet.g.allnodes.com', 'https://api.mainnet-beta.solana.com'];
 
-      if (!res.ok) break;
-      const data = await res.json();
-      const items = data.result?.items || [];
-      if (items.length === 0) break;
+  for (const endpoint of endpoints) {
+    try {
+      console.log(`[useSubscriber] Attempting subscription type fetch from: ${endpoint}`);
+      while (true) {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 'get-assets-' + Date.now(),
+            method: 'getAssetsByOwner',
+            params: {
+              ownerAddress: userAddress,
+              page,
+              limit: 1000,
+              displayOptions: { showFungible: false }
+            }
+          })
+        });
 
-      // Count subscription types
-      items.forEach(item => {
-        const attrs = item.content?.metadata?.attributes || [];
-        const typeAttr = attrs.find(a => a.trait_type === 'Subscription Type');
-        if (typeAttr?.value === 'Forever') forever++;
-        else if (typeAttr?.value === 'Redeemable') redeemable++;
-      });
+        if (!res.ok) {
+          console.warn(`[useSubscriber] Endpoint ${endpoint} failed with status: ${res.status}`);
+          break;
+        }
 
-      if (items.length < 1000) break;
-      page++;
+        const data = await res.json();
+        if (data.error) {
+          console.warn(`[useSubscriber] Endpoint ${endpoint} returned RPC error:`, data.error);
+          break;
+        }
+
+        const items = data.result?.items || [];
+        if (items.length === 0) break;
+
+        // Count subscription types
+        items.forEach(item => {
+          const attrs = item.content?.metadata?.attributes || [];
+          const typeAttr = attrs.find(a => a.trait_type === 'Subscription Type' || a.trait_type === 'Type');
+          if (typeAttr?.value === 'Forever') forever++;
+          else if (typeAttr?.value === 'Redeemable') redeemable++;
+        });
+
+        if (items.length < 1000) break;
+        page++;
+      }
+      
+      // If we found something or at least successfully queried, we can stop
+      if (forever > 0 || redeemable > 0) {
+        console.log(`[useSubscriber] Found ${forever} Forever, ${redeemable} Redeemable via ${endpoint}`);
+        break;
+      }
+    } catch (e) {
+      console.warn(`[useSubscriber] Fetch via ${endpoint} failed:`, e.message);
+      // Continue to next endpoint
     }
-  } catch (e) {
-    console.warn('[useSubscriber] DAS API subscription type fetch failed:', e.message);
   }
 
   return { forever, redeemable };

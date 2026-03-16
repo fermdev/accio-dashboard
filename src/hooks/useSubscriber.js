@@ -36,7 +36,16 @@ export const useSubscriber = () => {
         jsonrpc: '2.0',
         id: 'accio-cnft-sync',
         method: 'getAssetsByOwner',
-        params: { ownerAddress: wallet, page: 1, limit: 100 }
+        params: { 
+          ownerAddress: wallet, 
+          page: 1, 
+          limit: 1000,
+          displayOptions: {
+            showEmptyTraits: false,
+            showFungible: true,
+            showZeroBalance: false
+          }
+        }
       };
 
       let res;
@@ -79,7 +88,10 @@ export const useSubscriber = () => {
         // Permissive detection: Symbol ACS OR has an "Amount" trait
         const amountAttr = attributes.find(a => a.trait_type?.toLowerCase() === 'amount');
         const isAccess = symbol === 'ACS' || 
-                         attributes.some(a => a.trait_type?.toLowerCase().includes('subscription')) ||
+                         attributes.some(a => {
+                           const trait = a.trait_type?.toLowerCase() || '';
+                           return trait.includes('subscription') || trait.includes('creator');
+                         }) ||
                          !!amountAttr;
 
         if (isAccess) {
@@ -123,10 +135,13 @@ export const useSubscriber = () => {
       setLoadingStatus('Checking Hub & NFTs...');
       
       const [apiResults, cnftResult] = await Promise.all([
-        // Standard API
+        // Standard API (Fixed URL format to match Hub exactly)
         Promise.all(['locked', 'forever', 'redeemable'].map(type => 
-          fetchWithTimeout(`https://go-api.accessprotocol.co/supporters/${type}?user_pubkey=${wallet}`, {
-            headers: { 'Origin': 'https://hub.accessprotocol.co' }
+          fetchWithTimeout(`https://go-api.accessprotocol.co/supporters/${wallet}/${type}`, {
+            headers: { 
+              'Origin': 'https://hub.accessprotocol.co',
+              'Referer': 'https://hub.accessprotocol.co/'
+            }
           }).then(r => r.ok ? r.json() : null).catch(() => null)
         )),
         // cNFT Logic

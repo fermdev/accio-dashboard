@@ -34,6 +34,7 @@ export default async function handler(req, res) {
 
   for (const rpcUrl of RPC_ENDPOINTS) {
     try {
+      console.log(`[Proxy] Attempting sync via ${rpcUrl}`);
       const response = await fetch(rpcUrl, {
         method: 'POST',
         headers: { 

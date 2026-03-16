@@ -87,7 +87,7 @@ const Sidebar = ({
               <span className={`material-symbols-outlined text-sm ${isLoading ? 'animate-spin' : 'group-hover:rotate-12 transition-transform'}`}>
                 {isLoading ? 'progress_activity' : 'sync'}
               </span>
-              {isLoading ? 'Syncing...' : customizer.type === 'creator' ? 'Fetch Pool Stats' : 'Fetch Staker Stats'}
+              {isLoading ? 'Syncing...' : customizer.type === 'creator' ? 'Fetch Pool Stats' : 'Sync Wallet Data'}
             </div>
             {isLoading && loadingStatus && (
               <span className="text-[10px] text-primary/80 font-mono animate-pulse uppercase tracking-wider italic">

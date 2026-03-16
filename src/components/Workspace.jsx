@@ -41,8 +41,7 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
     totalLocked: 22450120,
     stakers: 1240,
     rank: 14,
-    poolAddress: '0x71C765...d897',
-    stakeApy: 28.55
+    poolAddress: '0x71C765...d897'
   };
 
   const stakerDisplay = stakerData || {
@@ -52,7 +51,7 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
     stakeApy: 28.55
   };
 
-  const apyValue = isStakerMode ? (stakerDisplay.stakeApy || 28.55) : (creatorDisplay.stakeApy || 28.55);
+  const apyValue = stakerDisplay.stakeApy || 28.55;
 
   const useImageBg = customizer?.backgroundType === 'image';
   const activeArt = customizer?.selectedBg === 'bg4' ? cardBg4 : customizer?.selectedBg === 'bg3' ? cardBg3 : customizer?.selectedBg === 'bg2' ? cardBg2 : cardBg1;
@@ -111,7 +110,7 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
               </h2>
             </div>
             
-            <div className="flex gap-16">
+            <div className="flex gap-20">
               <div className="flex flex-col">
                 <p className="text-white/40 text-[13px] font-black uppercase tracking-widest mb-1.5">Stakers</p>
                 <p className="text-4xl font-black text-white leading-none tracking-tight soft-text-shadow">{creatorDisplay.stakers.toLocaleString()}</p>
@@ -119,12 +118,6 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
               <div className="flex flex-col">
                 <p className="text-white/40 text-[13px] font-black uppercase tracking-widest mb-1.5">Global Rank</p>
                 <p className="text-4xl font-black text-white leading-none tracking-tight soft-text-shadow">#{creatorDisplay.rank}</p>
-              </div>
-              <div className="flex flex-col">
-                <p className="text-primary text-[13px] font-black uppercase tracking-[0.15em] mb-1.5">Stake APY</p>
-                <p className="text-4xl font-black text-white leading-none tracking-tight soft-text-shadow">
-                  {apyValue.toFixed(2)}%
-                </p>
               </div>
             </div>
           </>

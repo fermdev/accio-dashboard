@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { Connection, PublicKey } from '@solana/web3.js';
+import { Buffer } from 'buffer';
 
-const HUB_API_BASE = 'https://go-api.accessprotocol.co';
-const HUB_HEADERS = {
-  'Origin': 'https://hub.accessprotocol.co',
-  'Referer': 'https://hub.accessprotocol.co/',
-  'Accept': 'application/json'
-};
-
+const ACCESS_PROGRAM_ID = new PublicKey('6HW8dXjtiTGkD4jzXs7igdFmZExPpmwUrRN5195xGup');
 const STAKE_APY = 28.55;
+
+// Use a reliable public RPC for direct program scans
+const RPC_ENDPOINT = 'https://api.mainnet-beta.solana.com';
 
 export const useSubscriber = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -18,43 +16,38 @@ export const useSubscriber = () => {
   const fetchSubscriberData = async (userAddress) => {
     if (!userAddress) return;
     setIsLoading(true);
-    setLoadingStatus('Initializing Scan...');
+    setLoadingStatus('Syncing Blockchain Data...');
 
     try {
       const userPkStr = userAddress.trim();
+      const userPk = new PublicKey(userPkStr);
+      const connection = new Connection(RPC_ENDPOINT, 'confirmed');
       
-      // 1. Fetch Subscriber Stake Info from Go-API
-      setLoadingStatus('Registry Fetch...');
-      const poolsRes = await fetch(`${HUB_API_BASE}/pools?order=supporters&per_page=500`, { headers: HUB_HEADERS });
-      const poolsData = await poolsRes.json();
-      const poolList = Object.values(poolsData).filter(p => p && p.Pubkey);
-      
+      // 1. Single high-speed RPC call to find all user subscriptions
+      // Program: 6HW8dX... (Access)
+      // Account Size: 89 bytes
+      // Filter: User Pubkey at offset 1
+      const subscriptions = await connection.getProgramAccounts(ACCESS_PROGRAM_ID, {
+        filters: [
+          { dataSize: 89 },
+          { memcmp: { offset: 1, bytes: userPk.toBase58() } }
+        ]
+      });
+
       let totalAcs = 0n;
       const foundPools = new Set();
-      
-      setLoadingStatus('Scanning Pools...');
-      const QUEUE = [...poolList];
-      const CONCURRENCY = 40; // High concurrency for faster API scanning
-      
-      const worker = async () => {
-        while (QUEUE.length > 0) {
-          const pool = QUEUE.shift();
-          try {
-            const supRes = await fetch(`${HUB_API_BASE}/supporters/${pool.Pubkey}/locked?per_page=1000`, { headers: HUB_HEADERS });
-            if (supRes.ok) {
-              const supData = await supRes.json();
-              const supporters = Array.isArray(supData) ? supData : (supData.supporters || []);
-              const s = supporters.find(s => s.pubkey === userPkStr || s.address === userPkStr);
-              if (s) {
-                totalAcs += BigInt(s.amount);
-                foundPools.add(pool.Pubkey);
-              }
-            }
-          } catch (e) {}
-        }
-      };
 
-      await Promise.all(Array(CONCURRENCY).fill(0).map(() => worker()));
+      // 2. Process account data buffers instantly
+      subscriptions.forEach(({ account }) => {
+        const data = Buffer.from(account.data);
+        // Offset 33: Staked Amount (u64)
+        // Offset 41: Pool Pubkey (32 bytes)
+        const amount = data.readBigUInt64LE(33);
+        const poolPk = new PublicKey(data.slice(41, 73)).toBase58();
+        
+        totalAcs += amount;
+        foundPools.add(poolPk);
+      });
 
       setSubscriberData({
         totalStaked: Math.floor(Number(totalAcs / 1000000n)),
@@ -64,7 +57,7 @@ export const useSubscriber = () => {
       });
 
     } catch (err) {
-      console.error('[useSubscriber] Error:', err);
+      console.error('[useSubscriber] RPC Scan Error:', err);
     } finally {
       setIsLoading(false);
       setLoadingStatus('');

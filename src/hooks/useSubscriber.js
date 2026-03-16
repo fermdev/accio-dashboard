@@ -72,7 +72,7 @@ export const useSubscriber = () => {
         // Find Amount trait case-insensitively
         const amountAttr = attributes.find(a => {
           const trait = a.trait_type?.toLowerCase() || '';
-          return trait === 'amount' || trait === 'staking amount' || trait === 'acs amount';
+          return trait === 'amount' || trait === 'staking amount' || trait === 'acs amount' || trait === 'staked_amount';
         });
 
         // Permissive detection: Name/Symbol ACS OR has an "Amount" trait
@@ -86,7 +86,9 @@ export const useSubscriber = () => {
 
         if (isAccess) {
           if (amountAttr) {
-            const val = parseFloat(amountAttr.value);
+            // Handle strings like "50000.00 ACS" or numeric values
+            const valStr = String(amountAttr.value).split(' ')[0].replace(/,/g, '');
+            const val = parseFloat(valStr);
             if (!isNaN(val)) total += val;
           }
           

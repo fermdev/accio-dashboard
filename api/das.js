@@ -23,14 +23,14 @@ export default async function handler(req, res) {
   }
 
   const RPC_ENDPOINTS = [
-    'https://wrpc.accessprotocol.co/', // Primary (Official)
-    'https://solana.publicnode.com',    // Fallback 1
-    'https://rpc.ankr.com/solana',      // Fallback 2
-    'https://api.mainnet-beta.solana.com' // Fallback 3
+    'https://wrpc.accessprotocol.co/',           // Official
+    'https://accessprotocol.rpcpool.com/',       // Triton Fallback
+    'https://mainnet.helius-rpc.com/?api-key=accio-dummy', // Helius Fallback
+    'https://solana.publicnode.com'               // Generic Fallback
   ];
 
   let lastError = null;
-  let lastStatus = 0;
+  let lastStatus = 500;
 
   for (const rpcUrl of RPC_ENDPOINTS) {
     try {
@@ -45,25 +45,23 @@ export default async function handler(req, res) {
         body: JSON.stringify(req.body)
       });
 
+      lastStatus = response.status;
       if (response.ok) {
         const data = await response.json();
         return res.status(200).json(data);
       }
-
-      lastStatus = response.status;
-      lastError = `RPC ${rpcUrl} returned ${response.status}`;
-      console.warn(`[Proxy] ${rpcUrl} failed with ${response.status}`);
       
-      // If it's a 403 or 429, try the next one
-      continue;
+      const errText = await response.text();
+      lastError = `RPC ${rpcUrl} returned ${response.status}: ${errText.slice(0, 50)}`;
+      console.warn(`[Proxy] ${rpcUrl} failed: ${lastError}`);
     } catch (error) {
       lastError = error.message;
       console.warn(`[Proxy] ${rpcUrl} fetch error: ${error.message}`);
     }
   }
 
-  res.status(lastStatus || 500).json({ 
+  res.status(lastStatus).json({ 
     error: lastError || 'All RPC endpoints failed', 
-    details: 'The sync process encountered network restrictions. Please try again in 1 minute.' 
+    details: 'Sync failed due to network restrictions. We tried multiple providers.' 
   });
 }

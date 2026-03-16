@@ -39,7 +39,16 @@ export default defineConfig({
       '/api/supporters': {
         target: 'https://go-api.accessprotocol.co/supporters/',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/supporters/, ''),
+        rewrite: (path) => {
+          // Translate query params to path params for local dev: ?wallet=W&type=T -> /W/T
+          try {
+            const url = new URL(path, 'http://localhost');
+            const wallet = url.searchParams.get('wallet');
+            const type = url.searchParams.get('type');
+            if (wallet && type) return `/${wallet}/${type}`;
+          } catch (e) {}
+          return path.replace(/^\/api\/supporters/, '');
+        },
         configure: (proxy) => {
           proxy.on('proxyReq', (proxyReq) => {
             proxyReq.removeHeader('origin');

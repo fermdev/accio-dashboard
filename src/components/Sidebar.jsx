@@ -24,7 +24,7 @@ const Sidebar = ({
           <div className="flex gap-2 p-1 bg-black/20 rounded-xl">
             <button 
               onClick={() => handleCustomizerChange('type', 'creator')}
-              className={`flex-1 py-3 text-[10px] font-black tracking-[0.2em] rounded-lg transition-all ${
+              className={`flex-1 py-3 text-sm font-black tracking-widest rounded-lg transition-all ${
                 customizer.type === 'creator' 
                   ? 'bg-primary text-white shadow-lg' 
                   : 'bg-white/5 text-white/40 hover:bg-white/10'
@@ -34,7 +34,7 @@ const Sidebar = ({
             </button>
             <button
               onClick={() => handleCustomizerChange('type', 'staker')}
-              className={`flex-1 py-3 text-[10px] font-black tracking-[0.2em] rounded-lg transition-all ${
+              className={`flex-1 py-3 text-sm font-black tracking-widest rounded-lg transition-all ${
                 customizer.type === 'staker' 
                   ? 'bg-primary text-white shadow-lg' 
                   : 'bg-white/5 text-white/40 hover:bg-white/10'
@@ -145,7 +145,7 @@ const Sidebar = ({
               <div className="flex gap-2 p-1 bg-black/20 rounded-lg">
                 <button 
                   onClick={() => handleCustomizerChange('backgroundType', 'color')}
-                  className={`flex-1 py-3 text-[10px] font-black tracking-[0.2em] rounded-lg transition-all ${
+                  className={`flex-1 py-3 text-sm font-black tracking-widest rounded-lg transition-all ${
                     customizer.backgroundType === 'color' 
                       ? 'bg-primary text-white shadow-lg' 
                       : 'bg-white/5 text-white/40 hover:bg-white/10'
@@ -155,7 +155,7 @@ const Sidebar = ({
                 </button>
                 <button
                   onClick={() => handleCustomizerChange('backgroundType', 'image')}
-                  className={`flex-1 py-3 text-[10px] font-black tracking-[0.2em] rounded-lg transition-all ${
+                  className={`flex-1 py-3 text-sm font-black tracking-widest rounded-lg transition-all ${
                     customizer.backgroundType === 'image' 
                       ? 'bg-primary text-white shadow-lg' 
                       : 'bg-white/5 text-white/40 hover:bg-white/10'
@@ -252,18 +252,6 @@ const Sidebar = ({
           </div>
         </section>
 
-        <div className="mt-8 pt-6 border-t border-white/5">
-          <button 
-            onClick={onExport}
-            className="w-full bg-white text-black font-black py-4 rounded-xl text-sm tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl flex items-center justify-center gap-2"
-          >
-            <span className="material-symbols-outlined">download</span>
-            EXPORT FULL CARD
-          </button>
-          <p className="text-[10px] text-center text-slate-500 mt-4 uppercase font-bold tracking-widest">
-            PNG High Quality • 1200x630
-          </p>
-        </div>
       </div>
     </aside>
   );

@@ -171,7 +171,7 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
             <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
           )}
           {customizer?.selectedBg === 'bg3' && (
-            <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-orange-950/80 via-orange-950/40 to-transparent"></div>
           )}
         </div>
       ) : (

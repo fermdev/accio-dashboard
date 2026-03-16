@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 import fs from 'fs';
 
 async function findSubscriptionNfts() {
-  const address = '9tcpMyohDDQ4yHj67NurmAranKV7squ72f2o587gaqsk';
+  const address = '4NUFYm6k84ELFW9nuEe7DqAWmcjrzqQcaxLRcxTRByzP';
   const rpc = 'https://api.mainnet-beta.solana.com';
   
   let allItems = [];

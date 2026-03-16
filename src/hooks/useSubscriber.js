@@ -29,14 +29,15 @@ const POOL_CACHE_DURATION = 1000 * 60 * 60; // 1 hour
  * Scans all NFTs owned by the address and finds ones with "Subscription Type" attribute.
  */
 const fetchSubscriptionTypeCounts = async (userAddress) => {
-  let forever = 0;
-  let redeemable = 0;
-  let page = 1;
-
   // Try multiple endpoints if the proxy fails
   const endpoints = [DAS_RPC, 'https://solana-mainnet.g.allnodes.com', 'https://api.mainnet-beta.solana.com'];
 
   for (const endpoint of endpoints) {
+    let forever = 0;
+    let redeemable = 0;
+    let page = 1;
+    let success = false;
+
     try {
       console.log(`[useSubscriber] Attempting subscription type fetch from: ${endpoint}`);
       while (true) {
@@ -73,19 +74,25 @@ const fetchSubscriptionTypeCounts = async (userAddress) => {
         // Count subscription types
         items.forEach(item => {
           const attrs = item.content?.metadata?.attributes || [];
-          const typeAttr = attrs.find(a => a.trait_type === 'Subscription Type' || a.trait_type === 'Type');
-          if (typeAttr?.value === 'Forever') forever++;
-          else if (typeAttr?.value === 'Redeemable') redeemable++;
+          // Look for Forever/Redeemable in any attribute value for maximum resilience
+          const hasForever = attrs.some(a => String(a.value).toLowerCase() === 'forever');
+          const hasRedeemable = attrs.some(a => String(a.value).toLowerCase() === 'redeemable');
+          
+          if (hasForever) forever++;
+          if (hasRedeemable) redeemable++;
         });
 
-        if (items.length < 1000) break;
+        if (items.length < 1000) {
+          success = true;
+          break;
+        }
         page++;
       }
       
-      // If we found something or at least successfully queried, we can stop
-      if (forever > 0 || redeemable > 0) {
+      // If we successfully queried at least one page and found anything, or finished the whole set
+      if (success) {
         console.log(`[useSubscriber] Found ${forever} Forever, ${redeemable} Redeemable via ${endpoint}`);
-        break;
+        return { forever, redeemable };
       }
     } catch (e) {
       console.warn(`[useSubscriber] Fetch via ${endpoint} failed:`, e.message);
@@ -93,7 +100,7 @@ const fetchSubscriptionTypeCounts = async (userAddress) => {
     }
   }
 
-  return { forever, redeemable };
+  return { forever: 0, redeemable: 0 };
 };
 
 export const useSubscriber = () => {

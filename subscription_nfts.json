@@ -1,0 +1,54 @@
+[
+  {
+    "id": "CWhvmo5bFspG9nRZGotMyu2pm7MKhmWWxr8y8QtTRpyc",
+    "name": "ALPHACODED",
+    "attributes": [
+      {
+        "value": "50000.00",
+        "trait_type": "Amount"
+      },
+      {
+        "value": "Forever",
+        "trait_type": "Locked Until"
+      },
+      {
+        "value": "Forever",
+        "trait_type": "Subscription Type"
+      },
+      {
+        "value": "2024-05-27 14:49:40",
+        "trait_type": "Last Reward Claim"
+      },
+      {
+        "value": "ALPHACODED",
+        "trait_type": "Creator Pool Name"
+      }
+    ]
+  },
+  {
+    "id": "Ef23tsUBbALgyLNpebHv88TqjVZzjAt48oyd377jNFmw",
+    "name": "bourgeois",
+    "attributes": [
+      {
+        "value": "50000.00",
+        "trait_type": "Amount"
+      },
+      {
+        "value": "Forever",
+        "trait_type": "Locked Until"
+      },
+      {
+        "value": "Forever",
+        "trait_type": "Subscription Type"
+      },
+      {
+        "value": "2024-05-27 14:23:07",
+        "trait_type": "Last Reward Claim"
+      },
+      {
+        "value": "bourgeois",
+        "trait_type": "Creator Pool Name"
+      }
+    ]
+  }
+]

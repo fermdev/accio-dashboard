@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/das-rpc",
+      "destination": "https://api.mainnet-beta.solana.com"
+    }
+  ]
+}

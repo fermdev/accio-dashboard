@@ -4,6 +4,7 @@ import accioLogo from '../assets/iconlogo.PNG';
 import cardBg1 from '../assets/card-bg.png';
 import cardBg2 from '../assets/card-bg2.png';
 import cardBg3 from '../assets/card-bg3.png';
+import cardBg4 from '../assets/card-bg4.png';
 
 const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-export", isExportOnly = false }) => {
   const containerRef = React.useRef(null);
@@ -52,7 +53,7 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
   };
 
   const useImageBg = customizer?.backgroundType === 'image';
-  const activeArt = customizer?.selectedBg === 'bg3' ? cardBg3 : customizer?.selectedBg === 'bg2' ? cardBg2 : cardBg1;
+  const activeArt = customizer?.selectedBg === 'bg4' ? cardBg4 : customizer?.selectedBg === 'bg3' ? cardBg3 : customizer?.selectedBg === 'bg2' ? cardBg2 : cardBg1;
 
   const renderCardContent = () => (
     <div className="relative z-10 w-full h-full flex flex-col pt-6 pb-10 px-8 justify-between text-left">
@@ -171,7 +172,10 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
             <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
           )}
           {customizer?.selectedBg === 'bg3' && (
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-950/80 via-orange-950/40 to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-[#4d102e]/60 via-[#4d102e]/30 to-transparent"></div>
+          )}
+          {customizer?.selectedBg === 'bg4' && (
+            <div className="absolute inset-0 bg-black/40"></div>
           )}
         </div>
       ) : (

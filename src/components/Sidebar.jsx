@@ -199,6 +199,16 @@ const Sidebar = ({
                     >
                       3
                     </button>
+                    <button 
+                      onClick={() => handleCustomizerChange('selectedBg', 'bg4')}
+                      className={`size-10 rounded-full border-2 transition-all flex items-center justify-center text-[10px] font-black ${
+                        customizer.selectedBg === 'bg4' 
+                          ? 'border-primary bg-primary/20 text-primary shadow-[0_0_15px_rgba(101,145,255,0.3)]' 
+                          : 'border-white/10 bg-white/5 text-white/40 hover:border-white/20'
+                      }`}
+                    >
+                      4
+                    </button>
                   </div>
                 </div>
               )}

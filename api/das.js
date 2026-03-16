@@ -20,6 +20,10 @@ export default async function handler(req, res) {
     res.status(response.status).json(data);
   } catch (error) {
     console.error('DAS Proxy Error:', error);
-    res.status(500).json({ error: 'Failed to fetch from DAS RPC' });
+    res.status(500).json({ 
+      error: 'Failed to fetch from DAS RPC', 
+      details: error.message,
+      stack: error.stack
+    });
   }
 }

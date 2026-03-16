@@ -28,7 +28,11 @@ export default async function handler(req, res) {
   try {
     const response = await fetch(RPC_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Origin': 'https://hub.accessprotocol.co',
+        'Referer': 'https://hub.accessprotocol.co/'
+      },
       body: JSON.stringify(req.body)
     });
 

@@ -1,0 +1,9 @@
+﻿--- Checking Wallet: CvaGTkUGfkViVGMZ3EoLNJiVwdBUrrnRct8GGna8Fqnn ---
+LOCKED: Status 200, Found 0 items
+STAKABLE Error: invalid json response body at https://go-api.accessprotocol.co/supporters/CvaGTkUGfkViVGMZ3EoLNJiVwdBUrrnRct8GGna8Fqnn/stakable reason: Unexpected end of JSON input
+FOREVER: Status 200, Found 0 items
+REDEEMABLE Error: invalid json response body at https://go-api.accessprotocol.co/supporters/CvaGTkUGfkViVGMZ3EoLNJiVwdBUrrnRct8GGna8Fqnn/redeemable reason: Unexpected end of JSON input
+
+--- Checking Global Stats for APY ---
+Stats Error https://go-api.accessprotocol.co/stats: invalid json response body at https://go-api.accessprotocol.co/stats reason: Unexpected end of JSON input
+Stats Error https://go-api.accessprotocol.co/protocol: invalid json response body at https://go-api.accessprotocol.co/protocol reason: Unexpected end of JSON input

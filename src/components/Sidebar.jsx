@@ -140,6 +140,21 @@ const Sidebar = ({
               </label>
             </div>
 
+            {customizer.type === 'staker' && (
+              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900/40 border border-white/5 hover:border-primary/20 transition-colors">
+                <span className="text-xs font-medium text-slate-300">Show Status</span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input 
+                    checked={customizer.showSubscriptionType ?? true} 
+                    onChange={(e) => handleCustomizerChange('showSubscriptionType', e.target.checked)}
+                    className="sr-only peer" 
+                    type="checkbox"
+                  />
+                  <div className="w-10 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+              </div>
+            )}
+
             <div className="p-3 rounded-xl bg-slate-900/40 border border-white/5">
               <span className="text-[10px] text-slate-500 font-bold uppercase block mb-3">Background Style</span>
               <div className="flex gap-2 p-1 bg-black/20 rounded-lg">

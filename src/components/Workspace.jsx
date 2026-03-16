@@ -83,14 +83,18 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
                 <p className="text-white/40 text-[13px] font-black uppercase tracking-widest mb-1.5">Active Pools</p>
                 <p className="text-4xl font-black text-white leading-none tracking-tight soft-text-shadow">{stakerDisplay.poolCount.toLocaleString()}</p>
               </div>
-              <div className="flex flex-col">
-                <p className="text-white/40 text-[13px] font-black uppercase tracking-widest mb-1.5">Forever</p>
-                <p className="text-4xl font-black text-white leading-none tracking-tight soft-text-shadow">{(stakerDisplay.foreverCount ?? 0).toLocaleString()}</p>
-              </div>
-              <div className="flex flex-col">
-                <p className="text-white/40 text-[13px] font-black uppercase tracking-widest mb-1.5">Redeemable</p>
-                <p className="text-4xl font-black text-white leading-none tracking-tight soft-text-shadow">{(stakerDisplay.redeemableCount ?? 0).toLocaleString()}</p>
-              </div>
+              {customizer?.showSubscriptionType !== false && (
+                <>
+                  <div className="flex flex-col">
+                    <p className="text-white/40 text-[13px] font-black uppercase tracking-widest mb-1.5">Forever</p>
+                    <p className="text-4xl font-black text-white leading-none tracking-tight soft-text-shadow">{(stakerDisplay.foreverCount ?? 0).toLocaleString()}</p>
+                  </div>
+                  <div className="flex flex-col">
+                    <p className="text-white/40 text-[13px] font-black uppercase tracking-widest mb-1.5">Redeemable</p>
+                    <p className="text-4xl font-black text-white leading-none tracking-tight soft-text-shadow">{(stakerDisplay.redeemableCount ?? 0).toLocaleString()}</p>
+                  </div>
+                </>
+              )}
             </div>
           </>
         ) : (

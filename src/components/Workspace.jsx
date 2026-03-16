@@ -167,7 +167,7 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
         <div className="absolute inset-0">
           <img src={activeArt} alt="Background" className="w-full h-full object-cover" crossOrigin="anonymous" />
           {customizer?.selectedBg === 'bg2' && (
-            <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-white/5 to-transparent to-60%"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-red-500/30 via-red-500/10 to-transparent to-60%"></div>
           )}
           {customizer?.selectedBg === 'bg3' && (
             <div className="absolute inset-0 bg-gradient-to-r from-[#be185d]/30 via-[#be185d]/10 to-transparent to-55%"></div>

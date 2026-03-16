@@ -30,6 +30,7 @@ export const useSubscriber = () => {
 
   const fetchCnfts = async (wallet) => {
     try {
+      setLoadingStatus('Searching for NFTs...');
       const res = await fetchWithTimeout(DAS_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -37,7 +38,7 @@ export const useSubscriber = () => {
           jsonrpc: '2.0',
           id: 'accio-cnft-sync',
           method: 'getAssetsByOwner',
-          params: { ownerAddress: wallet, page: 1, limit: 100 }
+          params: { ownerAddress: wallet, page: 1, limit: 200 } // Increased limit
         })
       });
 
@@ -50,22 +51,28 @@ export const useSubscriber = () => {
 
       items.forEach(item => {
         const attributes = item.content?.metadata?.attributes || [];
-        const isAccess = item.content?.metadata?.symbol === 'ACS' || 
-                         attributes.some(a => a.trait_type === 'Subscription Type');
+        const symbol = item.content?.metadata?.symbol?.toUpperCase();
+        
+        // Robust check for Access Protocol NFTs
+        const isAccess = symbol === 'ACS' || 
+                         attributes.some(a => a.trait_type?.toLowerCase().includes('subscription'));
 
         if (isAccess) {
-          const amountAttr = attributes.find(a => a.trait_type === 'Amount');
+          const amountAttr = attributes.find(a => a.trait_type?.toLowerCase() === 'amount');
           if (amountAttr) {
             const val = parseFloat(amountAttr.value);
             if (!isNaN(val)) total += val;
           }
           
-          const poolAttr = attributes.find(a => a.trait_type === 'Creator Pool Name' || a.trait_type === 'Creator Name');
+          const poolAttr = attributes.find(a => 
+            ['creator pool name', 'creator name', 'pool'].includes(a.trait_type?.toLowerCase())
+          );
           if (poolAttr) pools.add(poolAttr.value);
           else pools.add(item.id);
         }
       });
 
+      console.log(`[Sync] Found ${total} ACS in cNFTs across ${pools.size} pools.`);
       return { total, pools };
     } catch (e) {
       console.warn('[Sync] cNFT check failed:', e);
@@ -104,7 +111,6 @@ export const useSubscriber = () => {
       apiResults.forEach(data => {
         if (data && data.total) {
           totalStaked += Number(data.total);
-          // We can't easily get unique pool names from this API, but we know the count
           poolCount += Number(data.supporters_count || 0);
         }
       });
@@ -113,30 +119,35 @@ export const useSubscriber = () => {
       totalStaked += cnftResult.total;
       cnftResult.pools.forEach(p => activePools.add(p));
 
-      // 2. Targeted RPC Fallback (Only if still 0 or for deep verification)
+      // 2. Targeted RPC Fallback (Use standard RPC for gPA)
       if (totalStaked === 0) {
         setLoadingStatus('Deep Scanning Chain...');
-        const connection = new Connection(DAS_ENDPOINT);
+        // Use a reliable public RPC for getProgramAccounts
+        const connection = new Connection('https://solana.publicnode.com');
         const userPk = new PublicKey(wallet);
         
-        const [off1, off8] = await Promise.all([
-          connection.getProgramAccounts(MAIN_PROGRAM, { filters: [{ memcmp: { offset: 1, bytes: userPk.toBase58() } }] }).catch(() => []),
-          connection.getProgramAccounts(MAIN_PROGRAM, { filters: [{ memcmp: { offset: 8, bytes: userPk.toBase58() } }] }).catch(() => [])
-        ]);
+        try {
+          const [off1, off8] = await Promise.all([
+            connection.getProgramAccounts(MAIN_PROGRAM, { filters: [{ memcmp: { offset: 1, bytes: userPk.toBase58() } }] }),
+            connection.getProgramAccounts(MAIN_PROGRAM, { filters: [{ memcmp: { offset: 8, bytes: userPk.toBase58() } }] })
+          ]);
 
-        const allAccs = [...off1, ...off8];
-        let rpcTotal = 0n;
-        allAccs.forEach(a => {
-          const data = Buffer.from(a.account.data);
-          if (data.length >= 41) {
-            const amt = data.readBigUInt64LE(33);
-            if (amt > 0n && amt < 1000000000000000n) rpcTotal += amt;
-            activePools.add(a.pubkey.toBase58());
+          const allAccs = [...off1, ...off8];
+          let rpcTotal = 0n;
+          allAccs.forEach(a => {
+            const data = Buffer.from(a.account.data);
+            if (data.length >= 41) {
+              const amt = data.readBigUInt64LE(33);
+              if (amt > 0n && amt < 1000000000000000n) rpcTotal += amt;
+              activePools.add(a.pubkey.toBase58());
+            }
+          });
+
+          if (rpcTotal > 0n) {
+            totalStaked += Number(rpcTotal / 1000000n);
           }
-        });
-
-        if (rpcTotal > 0n) {
-          totalStaked += Number(rpcTotal / 1000000n);
+        } catch (rpcErr) {
+          console.warn('[Sync] RPC fallback failed:', rpcErr);
         }
       }
 

@@ -94,13 +94,9 @@ export const useAccessPool = () => {
     setError(null);
 
     try {
-      try {
-        setLoadingStatus('Initializing...');
-        pubkey = new PublicKey(address.trim());
-      } catch (e) {
-        throw new Error('Invalid Solana Public Key format.');
-      }
-
+      setLoadingStatus('Initializing...');
+      const pubkey = new PublicKey(address.trim());
+      
       setLoadingStatus('Confirming Account...');
       // Parallelize Account Data and Metadata API
       const [accountInfo, metadataRes] = await Promise.allSettled([

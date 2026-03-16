@@ -5,48 +5,76 @@ import { Buffer } from 'buffer';
 const ACCESS_PROGRAM_ID = new PublicKey('6HW8dXjtiTGkD4jzXs7igdFmZExPpmwUrRN5195xGup');
 const STAKE_APY = 28.55;
 
-// Use a reliable public RPC for direct program scans
-const RPC_ENDPOINT = 'https://api.mainnet-beta.solana.com';
+// Use the local proxy for RPC to bypass CORS/Direct Blocks
+const RPC_ENDPOINT = window.location.origin + '/api/das';
 
 export const useSubscriber = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState('');
   const [subscriberData, setSubscriberData] = useState(null);
+  const [error, setError] = useState(null);
 
   const fetchSubscriberData = async (userAddress) => {
     if (!userAddress) return;
     setIsLoading(true);
-    setLoadingStatus('Syncing Blockchain Data...');
+    setLoadingStatus('Initializing Sync...');
+    setError(null);
 
     try {
       const userPkStr = userAddress.trim();
-      const userPk = new PublicKey(userPkStr);
-      const connection = new Connection(RPC_ENDPOINT, 'confirmed');
+      let userPk;
+      try {
+        userPk = new PublicKey(userPkStr);
+      } catch (e) {
+        throw new Error('Invalid Wallet Address format.');
+      }
       
-      // 1. Single high-speed RPC call to find all user subscriptions
-      // Program: 6HW8dX... (Access)
-      // Account Size: 89 bytes
-      // Filter: User Pubkey at offset 1
+      const connection = new Connection(RPC_ENDPOINT, {
+        commitment: 'confirmed',
+        fetch: async (url, options) => {
+          const res = await fetch(RPC_ENDPOINT, {
+            ...options,
+            method: 'POST',
+            headers: { ...options.headers, 'Content-Type': 'application/json' }
+          });
+          if (!res.ok) {
+            const errBody = await res.json().catch(() => ({}));
+            throw new Error(errBody.error || `RPC Error: ${res.status}`);
+          }
+          return res;
+        }
+      });
+      
+      setLoadingStatus('Scanning Blockchain...');
+      
       const subscriptions = await connection.getProgramAccounts(ACCESS_PROGRAM_ID, {
         filters: [
-          { dataSize: 89 },
           { memcmp: { offset: 1, bytes: userPk.toBase58() } }
         ]
       });
 
+      if (subscriptions.length === 0) {
+        console.log('[useSubscriber] No subscriptions found.');
+      }
+
       let totalAcs = 0n;
       const foundPools = new Set();
 
-      // 2. Process account data buffers instantly
       subscriptions.forEach(({ account }) => {
-        const data = Buffer.from(account.data);
-        // Offset 33: Staked Amount (u64)
-        // Offset 41: Pool Pubkey (32 bytes)
-        const amount = data.readBigUInt64LE(33);
-        const poolPk = new PublicKey(data.slice(41, 73)).toBase58();
-        
-        totalAcs += amount;
-        foundPools.add(poolPk);
+        try {
+          const data = Buffer.from(account.data);
+          if (data.length >= 73) {
+            const amount = data.readBigUInt64LE(33);
+            const poolPk = new PublicKey(data.slice(41, 73)).toBase58();
+            
+            if (amount > 0n) {
+              totalAcs += amount;
+              foundPools.add(poolPk);
+            }
+          }
+        } catch (e) {
+          console.warn('[useSubscriber] Failed to parse account:', e);
+        }
       });
 
       setSubscriberData({
@@ -57,12 +85,13 @@ export const useSubscriber = () => {
       });
 
     } catch (err) {
-      console.error('[useSubscriber] RPC Scan Error:', err);
+      console.error('[useSubscriber] Sync Error:', err);
+      setError(err.message || 'Synchronization failed. Please try again.');
     } finally {
       setIsLoading(false);
       setLoadingStatus('');
     }
   };
 
-  return { fetchSubscriberData, subscriberData, isLoading, loadingStatus };
+  return { fetchSubscriberData, subscriberData, isLoading, loadingStatus, error };
 };

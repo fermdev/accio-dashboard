@@ -1,32 +1,34 @@
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
-async function testSupporterPools(userAddress) {
-  const HUB_API_BASE = 'https://go-api.accessprotocol.co';
-  const urls = [
-    `${HUB_API_BASE}/supporters/${userAddress}/pools`,
-    `${HUB_API_BASE}/v2/subscribers/${userAddress}/subscriptions`,
-    `${HUB_API_BASE}/v1/supporters/${userAddress}`
+async function investigate() {
+  const w = 'CvaGTkUGfkViVGMZ3EoLNJiVwdBUrrnRct8GGna8Fqnn';
+  const endpoints = [
+    `https://go-api.accessprotocol.co/supporters/${w}/staking`,
+    `https://go-api.accessprotocol.co/supporters/${w}/portfolio`,
+    `https://go-api.accessprotocol.co/api/v1/supporters/${w}/staking`,
+    `https://api.accessprotocol.co/api/v1/supporters/${w}/staking`,
+    `https://go-api.accessprotocol.co/supporters/locked?user_pubkey=${w}`,
+    `https://go-api.accessprotocol.co/supporters/locked?supporter_pubkey=${w}`,
+    `https://api.accessprotocol.co/api/v1/supporters/locked?user_pubkey=${w}`
   ];
-  
-  for (const url of urls) {
-    console.log(`Testing: ${url}`);
+
+  const headers = {
+    'Origin': 'https://hub.accessprotocol.co',
+    'Referer': 'https://hub.accessprotocol.co/'
+  };
+
+  for (const url of endpoints) {
     try {
-        const res = await fetch(url, {
-            headers: {
-                'Origin': 'https://hub.accessprotocol.co',
-                'Referer': 'https://hub.accessprotocol.co/',
-            }
-        });
-        console.log(`Status: ${res.status}`);
-        if (res.ok) {
-            const data = await res.json();
-            console.log('SUCCESS!');
-            console.log(JSON.stringify(data).slice(0, 500));
-        }
+      const res = await fetch(url, { headers });
+      console.log(`URL: ${url} -> Status: ${res.status}`);
+      if (res.ok) {
+        const text = await res.text();
+        console.log(`  Body: ${text.slice(0, 500)}...`);
+      }
     } catch (e) {
-        console.log('Error:', e.message);
+      console.log(`  Error: ${e.message}`);
     }
   }
 }
 
-testSupporterPools('HLSxLAsaJWqttv1ZQaBzC3ZEjSbJva2qzc6JbREjPkn6');
+investigate();

@@ -76,12 +76,14 @@ const fetchSubscriptionTypeCounts = async (userAddress) => {
 
 export const useSubscriber = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState('');
   const [error, setError] = useState(null);
   const [subscriberData, setSubscriberData] = useState(null);
 
   const fetchSubscriberData = async (userAddress) => {
     if (!userAddress) return;
     setIsLoading(true);
+    setLoadingStatus('Initializing Scan...');
     setError(null);
     console.log('[useSubscriber] Starting optimized fetch for:', userAddress);
 
@@ -92,6 +94,7 @@ export const useSubscriber = () => {
       let poolList = cachedPoolList;
       const now = Date.now();
       if (!poolList || (now - lastPoolFetchTime > POOL_CACHE_DURATION)) {
+        setLoadingStatus('Registry Fetch...');
         console.log('[useSubscriber] Fetching/Refreshing creator pools...');
         const poolsRes = await fetch(`${HUB_API_BASE}/pools?order=supporters&per_page=500`, { headers: HUB_HEADERS });
         if (!poolsRes.ok) throw new Error('Failed to fetch pools');
@@ -100,6 +103,7 @@ export const useSubscriber = () => {
         cachedPoolList = poolList;
         lastPoolFetchTime = now;
       }
+      setLoadingStatus('Scanning Active Pools...');
       console.log(`[useSubscriber] Scanning ${poolList.length} pools with high concurrency...`);
 
       let totalAcs = 0n;
@@ -138,6 +142,7 @@ export const useSubscriber = () => {
       };
 
       // Start pool scan workers AND subscription type fetch in parallel
+      setLoadingStatus('Collecting Subscription Types...');
       const workers = Array(CONCURRENCY).fill(0).map(() => scanWorker());
       const [, typeCounts] = await Promise.all([
         Promise.all(workers),
@@ -145,6 +150,7 @@ export const useSubscriber = () => {
       ]);
 
       // 3. Fast On-Chain Fallback
+      setLoadingStatus('Aggregating Results...');
       console.log('[useSubscriber] Fast on-chain check...');
       // We only check the most reliable RPC
       const connection = new Connection(RPC_ENDPOINTS[0], 'confirmed');
@@ -182,14 +188,11 @@ export const useSubscriber = () => {
         foreverCount: typeCounts.forever,
         redeemableCount: typeCounts.redeemable
       });
+    } finally {
       setIsLoading(false);
-
-    } catch (err) {
-      console.error('[useSubscriber] Fetch Error:', err);
-      setError('Speed optimization failed. Please try again.');
-      setIsLoading(false);
+      setLoadingStatus('');
     }
   };
 
-  return { fetchSubscriberData, subscriberData, isLoading, error };
+  return { fetchSubscriberData, subscriberData, isLoading, loadingStatus, error };
 };

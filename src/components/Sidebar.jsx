@@ -9,7 +9,8 @@ const Sidebar = ({
   customizer, 
   handleCustomizerChange,
   isMobile,
-  onExport
+  onExport,
+  loadingStatus
 }) => {
   return (
     <aside className={`${isMobile ? 'w-full' : 'w-96'} border-r border-primary/10 bg-background-dark/50 overflow-y-auto custom-scrollbar z-10 shrink-0`}>
@@ -80,12 +81,19 @@ const Sidebar = ({
           <button 
             onClick={handleRefresh}
             disabled={isLoading || !inputAddress}
-            className="w-full bg-primary/20 hover:bg-primary/30 text-white border border-primary/30 py-3.5 rounded-xl text-sm font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
+            className="w-full bg-primary/20 hover:bg-primary/30 text-white border border-primary/30 py-3.5 rounded-xl text-sm font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center justify-center gap-1 group"
           >
-            <span className={`material-symbols-outlined text-sm ${isLoading ? 'animate-spin' : 'group-hover:rotate-12 transition-transform'}`}>
-              {isLoading ? 'progress_activity' : 'sync'}
-            </span>
-            {isLoading ? 'Syncing...' : customizer.type === 'creator' ? 'Fetch Pool Stats' : 'Fetch Staker Stats'}
+            <div className="flex items-center gap-2">
+              <span className={`material-symbols-outlined text-sm ${isLoading ? 'animate-spin' : 'group-hover:rotate-12 transition-transform'}`}>
+                {isLoading ? 'progress_activity' : 'sync'}
+              </span>
+              {isLoading ? 'Syncing...' : customizer.type === 'creator' ? 'Fetch Pool Stats' : 'Fetch Staker Stats'}
+            </div>
+            {isLoading && loadingStatus && (
+              <span className="text-[10px] text-primary/80 font-mono animate-pulse uppercase tracking-wider italic">
+                {loadingStatus}
+              </span>
+            )}
           </button>
         </section>
 

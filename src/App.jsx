@@ -14,8 +14,8 @@ import './index.css';
 
 function App() {
   const [inputAddress, setInputAddress] = useState('');
-  const { fetchPoolData, poolData, isLoading: isCreatorLoading, error: creatorError } = useAccessPool();
-  const { fetchSubscriberData, subscriberData, isLoading: isStakerLoading, error: stakerError } = useSubscriber();
+  const { fetchPoolData, poolData, isLoading: isCreatorLoading, loadingStatus: creatorStatus, error: creatorError } = useAccessPool();
+  const { fetchSubscriberData, subscriberData, isLoading: isStakerLoading, loadingStatus: stakerStatus, error: stakerError } = useSubscriber();
   const { 
     handleExport, 
     isExporting, 
@@ -58,6 +58,7 @@ function App() {
   };
 
   const isLoading = customizer.type === 'creator' ? isCreatorLoading : isStakerLoading;
+  const loadingStatus = customizer.type === 'creator' ? creatorStatus : stakerStatus;
   const error = customizer.type === 'creator' ? creatorError : stakerError;
   const effectiveData = poolData;
   const effectiveStakerData = subscriberData;
@@ -153,6 +154,7 @@ function App() {
               customizer={customizer}
               handleCustomizerChange={handleCustomizerChange}
               onExport={onExport}
+              loadingStatus={loadingStatus}
             />
             <Workspace 
               poolData={effectiveData}
@@ -181,6 +183,7 @@ function App() {
                   error={error}
                   customizer={customizer}
                   handleCustomizerChange={handleCustomizerChange}
+                  loadingStatus={loadingStatus}
                   isMobile
                 />
               </div>

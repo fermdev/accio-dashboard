@@ -39,6 +39,7 @@ const getCreatorName = (poolAddress, inputSource) => {
 
 export const useAccessPool = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState('');
   const [error, setError] = useState(null);
   const [poolData, setPoolData] = useState(null);
 
@@ -93,13 +94,14 @@ export const useAccessPool = () => {
     setError(null);
 
     try {
-      let pubkey;
       try {
+        setLoadingStatus('Initializing...');
         pubkey = new PublicKey(address.trim());
       } catch (e) {
         throw new Error('Invalid Solana Public Key format.');
       }
 
+      setLoadingStatus('Confirming Account...');
       // Parallelize Account Data and Metadata API
       const [accountInfo, metadataRes] = await Promise.allSettled([
         getAccountInfoWithRace(pubkey),
@@ -122,6 +124,7 @@ export const useAccessPool = () => {
       const minStakeRaw = info.data.readBigUInt64LE(8);
       const totalStakedRaw = info.data.readBigUInt64LE(16);
       
+      setLoadingStatus('Processing Stats...');
       const totalLocked = Number(totalStakedRaw) / 1_000_000;
       const minStake = Number(minStakeRaw) / 1_000_000;
       
@@ -174,8 +177,9 @@ export const useAccessPool = () => {
       setPoolData(null);
     } finally {
       setIsLoading(false);
+      setLoadingStatus('');
     }
   };
 
-  return { fetchPoolData, poolData, isLoading, error };
+  return { fetchPoolData, poolData, isLoading, loadingStatus, error };
 };

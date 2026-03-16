@@ -23,9 +23,9 @@ export default async function handler(req, res) {
   }
 
   const RPC_ENDPOINTS = [
-    'https://wrpc.accessprotocol.co/',           // Official
-    'https://accessprotocol.rpcpool.com/',       // Triton Fallback
-    'https://mainnet.helius-rpc.com/?api-key=accio-dummy', // Helius Fallback
+    'https://accessprotocol.rpcpool.com/',       // Triton (Primary for Hub)
+    'https://wrpc.accessprotocol.co/',           // Official WRPC
+    'https://solana-mainnet.g.allnodes.com/',    // Robust Fallback
     'https://solana.publicnode.com'               // Generic Fallback
   ];
 
@@ -40,12 +40,15 @@ export default async function handler(req, res) {
         headers: { 
           'Content-Type': 'application/json',
           'Origin': 'https://hub.accessprotocol.co',
-          'Referer': 'https://hub.accessprotocol.co/'
+          'Referer': 'https://hub.accessprotocol.co/',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': '*/*'
         },
         body: JSON.stringify(req.body)
       });
 
       lastStatus = response.status;
+      
       if (response.ok) {
         const data = await response.json();
         return res.status(200).json(data);

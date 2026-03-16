@@ -29,12 +29,12 @@ function App() {
   const [currentView, setCurrentView] = useState('editor'); // 'editor' | 'dashboard' | 'templates' | 'analytics'
   
   const [customizer, setCustomizer] = useState({
-    type: 'creator', // 'creator' | 'staker'
+    type: 'creator',
     showQr: true,
     glassEffect: false,
     accentColor: '#6591FF',
     backgroundType: 'image',
-    selectedBg: 'bg1', // 'bg1' | 'bg2'
+    selectedBg: 'bg1',
     blurAmount: 12,
     gradientColor1: '#1B1A1A',
     gradientColor2: '#1e2440'

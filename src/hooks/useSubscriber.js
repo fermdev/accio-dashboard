@@ -49,9 +49,8 @@ export const useSubscriber = () => {
         }
       };
 
-      let res;
-      // ALWAYS use proxy for DAS in production/local to ensure consistent headers
-      res = await fetchWithTimeout(DAS_ENDPOINT, {
+      // Use proxy to ensure consistent headers and failover
+      const res = await fetchWithTimeout(DAS_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(rpcBody)
@@ -65,41 +64,42 @@ export const useSubscriber = () => {
       const pools = new Set();
 
       items.forEach(item => {
-        // Deep scan for attributes (sometimes they are nested differently)
-        const attributes = item.content?.metadata?.attributes || item.metadata?.attributes || item.attributes || [];
+        const attributes = item.content?.metadata?.attributes || 
+                           item.metadata?.attributes || 
+                           item.content?.attributes ||
+                           item.attributes || [];
+        
         const symbol = (item.content?.metadata?.symbol || item.symbol || '').toUpperCase();
         
         // Find Amount trait case-insensitively
         const amountAttr = attributes.find(a => {
-          const trait = a.trait_type?.toLowerCase() || '';
-          return trait === 'amount' || trait === 'staking amount' || trait === 'acs amount' || trait === 'staked_amount';
+          const t = String(a.trait_type || '').toLowerCase();
+          return t === 'amount' || t === 'staking amount' || t === 'acs amount' || t === 'staked_amount';
         });
 
-        // Permissive detection: Name/Symbol ACS OR has an "Amount" trait
         const isAccess = symbol === 'ACS' || 
-                         item.content?.metadata?.name?.includes('Access') ||
+                         String(item.content?.metadata?.name || '').includes('Access') ||
+                         !!amountAttr ||
                          attributes.some(a => {
-                           const trait = a.trait_type?.toLowerCase() || '';
-                           return trait.includes('subscription') || trait.includes('creator') || trait.includes('access');
-                         }) ||
-                         !!amountAttr;
+                           const v = String(a.value || '').toLowerCase();
+                           return v.includes('access protocol') || v.includes('acs');
+                         });
 
         if (isAccess) {
           if (amountAttr) {
-            // Handle strings like "50000.00 ACS" or numeric values
-            const valStr = String(amountAttr.value).split(' ')[0].replace(/,/g, '');
+            const valStr = String(amountAttr.value || '0').split(' ')[0].replace(/,/g, '');
             const val = parseFloat(valStr);
             if (!isNaN(val)) total += val;
           }
           
           const poolAttr = attributes.find(a => {
-            const trait = a.trait_type?.toLowerCase() || '';
-            return ['creator pool name', 'creator name', 'pool', 'creator', 'subscription pool'].includes(trait);
+            const t = String(a.trait_type || '').toLowerCase();
+            return ['creator pool name', 'creator name', 'pool', 'creator', 'subscription pool'].includes(t);
           });
           
           if (poolAttr) pools.add(poolAttr.value);
           else if (item.content?.metadata?.name) pools.add(item.content.metadata.name);
-          else pools.add(item.id);
+          else if (item.id) pools.add(item.id.slice(0, 8) + '...');
         }
       });
 
@@ -121,7 +121,6 @@ export const useSubscriber = () => {
     try {
       const wallet = userAddress.trim();
       let totalStaked = 0;
-      let poolCount = 0;
       const activePools = new Set();
 
       // 1. Parallel Multi-Source Check
@@ -129,7 +128,6 @@ export const useSubscriber = () => {
       
       const [apiResults, cnftResult] = await Promise.all([
         // Standard API (Always use Proxy to set Origin/Referer correctly)
-        // Using query parameters for maximum Vercel compatibility
         Promise.all(['locked', 'forever', 'redeemable'].map(type => 
           fetchWithTimeout(`${SUPPORTERS_ENDPOINT}?wallet=${wallet}&type=${type}`).then(r => r.ok ? r.json() : null).catch(() => null)
         )),
@@ -137,11 +135,11 @@ export const useSubscriber = () => {
         fetchCnfts(wallet)
       ]);
 
-      // Process API Results
+      // Process Hub API Results
       apiResults.forEach(data => {
-        if (data && data.total) {
-          totalStaked += Number(data.total);
-          poolCount += Number(data.supporters_count || 0);
+        if (data && (data.total || data.total_staked)) {
+          totalStaked += Number(data.total || data.total_staked);
+          if (data.stakers) data.stakers.forEach(s => activePools.add(s.pool_name || s.pool_address));
         }
       });
 
@@ -152,39 +150,31 @@ export const useSubscriber = () => {
       // 2. Targeted RPC Fallback (Use standard RPC for gPA)
       if (totalStaked === 0) {
         setLoadingStatus('Deep Scanning Chain...');
-        // Use a reliable public RPC for getProgramAccounts
-        const connection = new Connection('https://solana.publicnode.com');
-        const userPk = new PublicKey(wallet);
-        
         try {
-          const [off1, off8] = await Promise.all([
-            connection.getProgramAccounts(MAIN_PROGRAM, { filters: [{ memcmp: { offset: 1, bytes: userPk.toBase58() } }] }),
-            connection.getProgramAccounts(MAIN_PROGRAM, { filters: [{ memcmp: { offset: 8, bytes: userPk.toBase58() } }] })
-          ]);
+          const connection = new Connection('https://solana.publicnode.com');
+          const userPk = new PublicKey(wallet);
+          const filters = [{ memcmp: { offset: 8, bytes: userPk.toBase58() } }];
+          const accounts = await connection.getProgramAccounts(MAIN_PROGRAM, { filters });
 
-          const allAccs = [...off1, ...off8];
-          let rpcTotal = 0n;
-          allAccs.forEach(a => {
+          accounts.forEach(a => {
             const data = Buffer.from(a.account.data);
             if (data.length >= 41) {
               const amt = data.readBigUInt64LE(33);
-              if (amt > 0n && amt < 1000000000000000n) rpcTotal += amt;
-              activePools.add(a.pubkey.toBase58());
+              if (amt > 0n && amt < 1000000000000000n) {
+                totalStaked += Number(amt / 1000000n);
+                activePools.add(a.pubkey.toBase58());
+              }
             }
           });
-
-          if (rpcTotal > 0n) {
-            totalStaked += Number(rpcTotal / 1000000n);
-          }
         } catch (rpcErr) {
           console.warn('[Sync] RPC fallback failed:', rpcErr);
         }
       }
 
       setSubscriberData({
-        totalStaked: Math.floor(totalStaked),
-        poolCount: Math.max(poolCount, activePools.size),
         address: wallet,
+        totalStaked: Math.floor(totalStaked),
+        poolCount: activePools.size,
         stakeApy: 28.55
       });
 

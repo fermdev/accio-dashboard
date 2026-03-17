@@ -1,5 +1,6 @@
 import React from 'react';
 import Workspace from './Workspace';
+import Footer from './Footer';
 
 const Sidebar = ({ 
   inputAddress, 
@@ -298,6 +299,8 @@ const Sidebar = ({
           <p className="text-[10px] text-center text-slate-600 mt-4 uppercase font-bold tracking-widest">
             PNG High Quality • 1200x630
           </p>
+
+          <Footer />
         </div>
       </div>
     </aside>

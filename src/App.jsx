@@ -218,9 +218,6 @@ function App() {
         )}
       </div>
 
-      <Footer />
-
-      {/* Hidden Export Target - Robust semi-visibility fix */}
       <div 
         className="fixed z-[-1000] pointer-events-none select-none opacity-[0.01]" 
         style={{ 

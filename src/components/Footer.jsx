@@ -28,7 +28,7 @@ const Footer = () => {
       
       <div className="flex items-center gap-3">
         <span className="text-[10px] text-slate-400 dark:text-white/20 font-bold uppercase tracking-[0.2em]">Powered by</span>
-        <img src={accessLogo} alt="Access Protocol" className="h-3.5 dark:invert opacity-100 dark:opacity-90" />
+        <img src={accessLogo} alt="Access Protocol" className="h-3 invert dark:invert-0 opacity-100 dark:opacity-40" />
       </div>
     </footer>
   );

@@ -1,66 +1,68 @@
 {
-  "$schema": "https://mintlify.com/schema.json",
-  "name": "Accio Ecosystem",
+  "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "logo": {
-    "dark": "/images/placeholders/logo.png",
-    "light": "/images/placeholders/logo.png"
-  },
-  "favicon": "/favicon.svg",
+  "name": "Accio Ecosystem",
   "colors": {
     "primary": "#00A3FF",
     "light": "#33B5FF",
     "dark": "#007ACC"
   },
-  "topbarLinks": [
-    {
-      "name": "Dashboard",
-      "url": "https://accio-v1.vercel.app/"
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "introduction",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Core Features",
+            "pages": [
+              "features/creator-card",
+              "features/subscriber-card",
+              "features/upcoming"
+            ]
+          },
+          {
+            "group": "Contribution",
+            "pages": [
+              "contributing"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Live Dashboard",
+          "href": "https://accio-v1.vercel.app/",
+          "icon": "desktop"
+        },
+        {
+          "anchor": "Community Hub",
+          "href": "https://github.com/fermdev/accio-dashboard",
+          "icon": "github"
+        }
+      ]
     }
-  ],
-  "topbarCtaButton": {
-    "type": "github",
-    "url": "https://github.com/fermdev/accio-dashboard"
   },
-  "anchors": [
-    {
-      "name": "Live Dashboard",
-      "icon": "desktop",
-      "url": "https://accio-v1.vercel.app/"
-    },
-    {
-      "name": "Community Hub",
-      "icon": "github",
-      "url": "https://github.com/fermdev/accio-dashboard"
+  "logo": {
+    "dark": "/images/placeholders/logo.png",
+    "light": "/images/placeholders/logo.png"
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/AccessProtocol",
+      "github": "https://github.com/fermdev/accio-dashboard"
     }
-  ],
-  "navigation": [
-    {
-      "group": "Getting Started",
-      "pages": [
-        "introduction",
-        "quickstart"
-      ]
-    },
-    {
-      "group": "Core Features",
-      "pages": [
-        "features/creator-card",
-        "features/subscriber-card",
-        "features/upcoming"
-      ]
-    },
-    {
-      "group": "Contribution",
-      "pages": [
-        "contributing"
-      ]
-    }
-  ],
-  "footerSocials": {
-    "x": "https://x.com/AccessProtocol",
-    "github": "https://github.com/fermdev/accio-dashboard"
   }
 }
+
 
 

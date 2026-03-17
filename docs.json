@@ -10,8 +10,7 @@
   "colors": {
     "primary": "#00A3FF",
     "light": "#33B5FF",
-    "dark": "#007ACC",
-    "anchors": "#00A3FF"
+    "dark": "#007ACC"
   },
   "topbarLinks": [
     {
@@ -63,4 +62,5 @@
     "github": "https://github.com/fermdev/accio-dashboard"
   }
 }
+
 

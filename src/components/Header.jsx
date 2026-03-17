@@ -17,7 +17,7 @@ const Header = ({ onExport, currentView, setCurrentView, theme, toggleTheme }) =
         <button 
           onClick={() => setCurrentView('dashboard')}
           className={`text-sm font-medium transition-colors cursor-pointer pb-1 border-b-2 ${
-            currentView === 'dashboard' ? 'text-white border-primary' : 'text-slate-400 border-transparent hover:text-white'
+            currentView === 'dashboard' ? 'text-primary dark:text-white border-primary' : 'text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-900 dark:hover:text-white'
           }`}
         >
           Dashboard
@@ -25,7 +25,7 @@ const Header = ({ onExport, currentView, setCurrentView, theme, toggleTheme }) =
         <button 
           onClick={() => setCurrentView('market')}
           className={`text-sm font-medium transition-colors cursor-pointer pb-1 border-b-2 ${
-            currentView === 'market' ? 'text-white border-primary' : 'text-slate-400 border-transparent hover:text-white'
+            currentView === 'market' ? 'text-primary dark:text-white border-primary' : 'text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-900 dark:hover:text-white'
           }`}
         >
           Market
@@ -33,7 +33,7 @@ const Header = ({ onExport, currentView, setCurrentView, theme, toggleTheme }) =
         <button 
           onClick={() => setCurrentView('editor')}
           className={`text-sm font-medium transition-colors cursor-pointer pb-1 border-b-2 ${
-            currentView === 'editor' ? 'text-white border-primary' : 'text-slate-400 border-transparent hover:text-white'
+            currentView === 'editor' ? 'text-primary dark:text-white border-primary' : 'text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-900 dark:hover:text-white'
           }`}
         >
           Editor
@@ -41,7 +41,7 @@ const Header = ({ onExport, currentView, setCurrentView, theme, toggleTheme }) =
         <button 
           onClick={() => setCurrentView('templates')}
           className={`text-sm font-medium transition-colors cursor-pointer pb-1 border-b-2 ${
-            currentView === 'templates' ? 'text-white border-primary' : 'text-slate-400 border-transparent hover:text-white'
+            currentView === 'templates' ? 'text-primary dark:text-white border-primary' : 'text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-900 dark:hover:text-white'
           }`}
         >
           Templates

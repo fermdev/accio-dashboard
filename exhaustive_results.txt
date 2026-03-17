@@ -1,4 +1,0 @@
-{
-  "userAddress": "4NUFYm6k84ELFW9nuEe7DqAWmcjrzqQcaxLRcxTRByzP",
-  "foundForever": []
-}

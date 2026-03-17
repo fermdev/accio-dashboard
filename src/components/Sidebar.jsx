@@ -25,23 +25,23 @@ const Sidebar = ({
           <div className="flex gap-2 p-1 bg-black/20 rounded-xl">
             <button 
               onClick={() => handleCustomizerChange('type', 'creator')}
-              className={`flex-1 py-3 text-sm font-black tracking-widest rounded-lg transition-all ${
+              className={`flex-1 py-3 text-sm font-semibold tracking-wide rounded-lg transition-all ${
                 customizer.type === 'creator' 
                   ? 'bg-primary text-white shadow-lg' 
                   : 'bg-white/5 text-white/40 hover:bg-white/10'
               }`}
             >
-              CREATOR
+              Creator
             </button>
             <button
               onClick={() => handleCustomizerChange('type', 'staker')}
-              className={`flex-1 py-3 text-sm font-black tracking-widest rounded-lg transition-all ${
+              className={`flex-1 py-3 text-sm font-semibold tracking-wide rounded-lg transition-all ${
                 customizer.type === 'staker' 
                   ? 'bg-primary text-white shadow-lg' 
                   : 'bg-white/5 text-white/40 hover:bg-white/10'
               }`}
             >
-              STAKER
+              Staker
             </button>
           </div>
         </section>
@@ -154,23 +154,23 @@ const Sidebar = ({
               <div className="flex gap-2 p-1 bg-black/20 rounded-lg">
                 <button 
                   onClick={() => handleCustomizerChange('backgroundType', 'color')}
-                  className={`flex-1 py-3 text-sm font-black tracking-widest rounded-lg transition-all ${
+                  className={`flex-1 py-3 text-sm font-semibold tracking-wide rounded-lg transition-all ${
                     customizer.backgroundType === 'color' 
                       ? 'bg-primary text-white shadow-lg' 
                       : 'bg-white/5 text-white/40 hover:bg-white/10'
                   }`}
                 >
-                  GRADIENT
+                  Gradient
                 </button>
                 <button
                   onClick={() => handleCustomizerChange('backgroundType', 'image')}
-                  className={`flex-1 py-3 text-sm font-black tracking-widest rounded-lg transition-all ${
+                  className={`flex-1 py-3 text-sm font-semibold tracking-wide rounded-lg transition-all ${
                     customizer.backgroundType === 'image' 
                       ? 'bg-primary text-white shadow-lg' 
                       : 'bg-white/5 text-white/40 hover:bg-white/10'
                   }`}
                 >
-                  ART
+                  Art
                 </button>
               </div>
 
@@ -180,7 +180,7 @@ const Sidebar = ({
                   <div className="flex gap-3">
                     <button 
                       onClick={() => handleCustomizerChange('selectedBg', 'bg1')}
-                      className={`size-10 rounded-full border-2 transition-all flex items-center justify-center text-[10px] font-black ${
+                      className={`size-10 rounded-full border-2 transition-all flex items-center justify-center text-xs font-semibold ${
                         customizer.selectedBg === 'bg1' 
                           ? 'border-primary bg-primary/20 text-primary shadow-[0_0_15px_rgba(101,145,255,0.3)]' 
                           : 'border-white/10 bg-white/5 text-white/40 hover:border-white/20'
@@ -190,7 +190,7 @@ const Sidebar = ({
                     </button>
                     <button 
                       onClick={() => handleCustomizerChange('selectedBg', 'bg2')}
-                      className={`size-10 rounded-full border-2 transition-all flex items-center justify-center text-[10px] font-black ${
+                      className={`size-10 rounded-full border-2 transition-all flex items-center justify-center text-xs font-semibold ${
                         customizer.selectedBg === 'bg2' 
                           ? 'border-primary bg-primary/20 text-primary shadow-[0_0_15px_rgba(101,145,255,0.3)]' 
                           : 'border-white/10 bg-white/5 text-white/40 hover:border-white/20'
@@ -200,7 +200,7 @@ const Sidebar = ({
                     </button>
                     <button 
                       onClick={() => handleCustomizerChange('selectedBg', 'bg3')}
-                      className={`size-10 rounded-full border-2 transition-all flex items-center justify-center text-[10px] font-black ${
+                      className={`size-10 rounded-full border-2 transition-all flex items-center justify-center text-xs font-semibold ${
                         customizer.selectedBg === 'bg3' 
                           ? 'border-primary bg-primary/20 text-primary shadow-[0_0_15px_rgba(101,145,255,0.3)]' 
                           : 'border-white/10 bg-white/5 text-white/40 hover:border-white/20'
@@ -210,7 +210,7 @@ const Sidebar = ({
                     </button>
                     <button 
                       onClick={() => handleCustomizerChange('selectedBg', 'bg4')}
-                      className={`size-10 rounded-full border-2 transition-all flex items-center justify-center text-[10px] font-black ${
+                      className={`size-10 rounded-full border-2 transition-all flex items-center justify-center text-xs font-semibold ${
                         customizer.selectedBg === 'bg4' 
                           ? 'border-primary bg-primary/20 text-primary shadow-[0_0_15px_rgba(101,145,255,0.3)]' 
                           : 'border-white/10 bg-white/5 text-white/40 hover:border-white/20'
@@ -274,10 +274,10 @@ const Sidebar = ({
         <div className="mt-8 pt-6 border-t border-white/5">
           <button 
             onClick={onExport}
-            className="w-full bg-white text-black font-black py-4 rounded-xl text-sm tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl flex items-center justify-center gap-2"
+            className="w-full bg-white text-black font-semibold py-4 rounded-xl text-sm tracking-wide hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl flex items-center justify-center gap-2"
           >
             <span className="material-symbols-outlined">download</span>
-            EXPORT FULL CARD
+            Export Full Card
           </button>
           <p className="text-[10px] text-center text-slate-500 mt-4 uppercase font-bold tracking-widest">
             PNG High Quality • 1200x630

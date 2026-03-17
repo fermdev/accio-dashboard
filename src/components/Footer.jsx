@@ -2,8 +2,8 @@ import React from 'react';
 
 const Footer = () => {
   return (
-    <footer className="h-10 border-t border-primary/10 bg-background-dark px-6 flex items-center justify-between z-50">
-      <div className="flex items-center gap-4 text-[10px] text-slate-500 font-medium">
+    <footer className="h-10 border-t border-primary/10 bg-white dark:bg-background-dark px-6 flex items-center justify-between z-50">
+      <div className="flex items-center gap-4 text-[10px] text-slate-700 dark:text-slate-500 font-bold">
         <div className="flex items-center gap-1">
           <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
           Live Data Connected
@@ -15,7 +15,7 @@ const Footer = () => {
         </div>
       </div>
       <div className="flex items-center gap-6">
-        <div className="flex items-center gap-2 text-[10px] text-slate-500">
+        <div className="flex items-center gap-2 text-[10px] text-slate-700 dark:text-slate-500 font-bold">
           <span className="material-symbols-outlined text-[14px]">desktop_windows</span>
           Preview Scale: 85%
         </div>

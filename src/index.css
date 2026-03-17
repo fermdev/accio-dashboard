@@ -55,3 +55,11 @@
 .soft-text-shadow {
     text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8), 0 4px 10px rgba(0, 0, 0, 0.6);
 }
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}

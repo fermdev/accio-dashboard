@@ -27,7 +27,7 @@ function App() {
   } = useExport();
   const [theme, setTheme] = useState('dark');
   const [mobileTab, setMobileTab] = useState('edit'); // 'edit' | 'preview'
-  const [currentView, setCurrentView] = useState('editor'); // 'editor' | 'dashboard' | 'templates' | 'analytics'
+  const [currentView, setCurrentView] = useState('editor'); // 'editor' | 'dashboard' | 'campaign' | 'analytics'
   
   const [customizer, setCustomizer] = useState({
     type: 'creator',
@@ -184,53 +184,22 @@ function App() {
       {/* Mobile layout */}
       <div className="flex md:hidden flex-1 overflow-hidden flex-col">
         {currentView === 'editor' ? (
-          <>
-            {mobileTab === 'edit' ? (
-              <div className="flex-1 overflow-y-auto">
-                <Sidebar 
-                  inputAddress={inputAddress}
-                  setInputAddress={setInputAddress}
-                  handleRefresh={handleRefresh}
-                  isLoading={isLoading}
-                  error={error}
-                  customizer={customizer}
-                  handleCustomizerChange={handleCustomizerChange}
-                  loadingStatus={loadingStatus}
-                  isMobile
-                />
-              </div>
-            ) : (
-              <div className="flex-1 flex overflow-hidden">
-                <Workspace 
-                  poolData={effectiveData}
-                  stakerData={effectiveStakerData}
-                  customizer={customizer}
-                />
-              </div>
-            )}
-
-            {/* Mobile Tab Bar */}
-            <div className="flex border-t border-primary/20 bg-white dark:bg-background-dark shrink-0">
-              <button
-                onClick={() => setMobileTab('edit')}
-                className={`flex-1 flex flex-col items-center justify-center py-3 gap-1 text-[10px] font-bold uppercase tracking-widest transition-colors ${
-                  mobileTab === 'edit' ? 'text-primary border-t-2 border-primary -mt-px' : 'text-slate-500'
-                }`}
-              >
-                <span className="material-symbols-outlined text-lg">tune</span>
-                Edit
-              </button>
-              <button
-                onClick={() => setMobileTab('preview')}
-                className={`flex-1 flex flex-col items-center justify-center py-3 gap-1 text-[10px] font-bold uppercase tracking-widest transition-colors ${
-                  mobileTab === 'preview' ? 'text-primary border-t-2 border-primary -mt-px' : 'text-slate-500'
-                }`}
-              >
-                <span className="material-symbols-outlined text-lg">credit_card</span>
-                Preview
-              </button>
-            </div>
-          </>
+          <div className="flex-1 overflow-y-auto">
+            <Sidebar 
+              inputAddress={inputAddress}
+              setInputAddress={setInputAddress}
+              handleRefresh={handleRefresh}
+              isLoading={isLoading}
+              error={error}
+              customizer={customizer}
+              handleCustomizerChange={handleCustomizerChange}
+              loadingStatus={loadingStatus}
+              onExport={onExport}
+              poolData={effectiveData}
+              stakerData={effectiveStakerData}
+              isMobile
+            />
+          </div>
         ) : currentView === 'market' ? (
           <>
             <JupiterSwap key="jupiter-market-mobile" />

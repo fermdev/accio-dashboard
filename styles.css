@@ -1,0 +1,27 @@
+/* Custom styles to reduce the "zoomed-in" feel */
+
+html {
+  font-size: 15px; /* Slightly smaller than default 16px */
+}
+
+/* Adjust heading sizes to be more compact */
+h1 {
+  font-size: 2.25rem !important;
+  line-height: 2.5rem !important;
+}
+
+h2 {
+  font-size: 1.5rem !important;
+  line-height: 2rem !important;
+  margin-top: 2rem !important;
+}
+
+/* Widen the main content container */
+.prose {
+  max-width: 60rem !important;
+}
+
+/* Adjust the sidebar and navbar font sizes */
+nav, aside {
+  font-size: 0.9rem !important;
+}

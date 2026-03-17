@@ -223,7 +223,7 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
   return (
     <main 
       ref={containerRef}
-      className="w-full h-full bg-background-dark/80 overflow-hidden flex items-center justify-center p-2 md:p-12"
+      className="w-full h-full bg-slate-100 dark:bg-background-dark/80 overflow-hidden flex items-center justify-center p-2 md:p-12 transition-colors duration-300"
       style={{ 
         '--color-primary': customizer?.accentColor || '#8a2ce2',
         '--workspace-scale': scale
@@ -250,7 +250,7 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
             transformOrigin: 'top left'
           }}
         >
-          <div className="relative w-[1000px] h-[525px] flex-shrink-0 social-card-preview rounded-none shadow-[0_30px_90px_-15px_rgba(0,0,0,0.6)] border border-white/10 overflow-hidden">
+          <div className="relative w-[1000px] h-[525px] flex-shrink-0 social-card-preview bg-black rounded-none shadow-[0_30px_90px_-15px_rgba(0,0,0,0.6)] dark:shadow-[0_30px_90px_-15px_rgba(0,0,0,0.8)] border border-slate-700/50 dark:border-white/10 overflow-hidden">
             {renderBackground()}
             {renderCardContent()}
             <div className="absolute top-6 right-8 text-[10px] font-bold uppercase tracking-[0.4em] text-white/20 select-none">

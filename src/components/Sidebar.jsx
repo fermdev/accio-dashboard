@@ -13,7 +13,7 @@ const Sidebar = ({
   loadingStatus
 }) => {
   return (
-    <aside className={`${isMobile ? 'w-full' : 'w-96'} border-r border-primary/10 bg-background-dark/50 overflow-y-auto custom-scrollbar z-10 shrink-0`}>
+    <aside className={`${isMobile ? 'w-full' : 'w-96'} border-r border-slate-200 dark:border-primary/10 bg-white/50 dark:bg-background-dark/50 overflow-y-auto custom-scrollbar z-10 shrink-0`}>
       <div className="p-6 flex flex-col gap-8">
         
         {/* Mode Selector */}
@@ -22,13 +22,13 @@ const Sidebar = ({
             <span className="material-symbols-outlined text-base">style</span>
             <h3 className="text-xs font-bold uppercase tracking-widest">Mode Selector</h3>
           </div>
-          <div className="flex gap-2 p-1 bg-black/20 rounded-xl">
+          <div className="flex gap-2 p-1 bg-slate-100 dark:bg-black/20 rounded-xl">
             <button 
               onClick={() => handleCustomizerChange('type', 'creator')}
               className={`flex-1 py-3 text-sm font-semibold tracking-wide rounded-lg transition-all ${
                 customizer.type === 'creator' 
                   ? 'bg-primary text-white shadow-lg' 
-                  : 'bg-white/5 text-white/40 hover:bg-white/10'
+                  : 'bg-white hover:bg-slate-50 text-slate-500 dark:bg-white/5 dark:text-white/40 dark:hover:bg-white/10'
               }`}
             >
               Creator
@@ -38,7 +38,7 @@ const Sidebar = ({
               className={`flex-1 py-3 text-sm font-semibold tracking-wide rounded-lg transition-all ${
                 customizer.type === 'staker' 
                   ? 'bg-primary text-white shadow-lg' 
-                  : 'bg-white/5 text-white/40 hover:bg-white/10'
+                  : 'bg-white hover:bg-slate-50 text-slate-500 dark:bg-white/5 dark:text-white/40 dark:hover:bg-white/10'
               }`}
             >
               Staker
@@ -54,12 +54,12 @@ const Sidebar = ({
           </div>
           
           <div className="space-y-2">
-            <label className="text-xs text-slate-400 font-medium ml-1">
+            <label className="text-xs text-slate-600 dark:text-slate-400 font-medium ml-1">
               {customizer.type === 'creator' ? 'Solana Pool Address' : 'Subscriber Wallet Address'}
             </label>
             <div className="relative group">
               <input 
-                className="w-full bg-slate-900/50 border border-primary/20 rounded-xl px-4 py-3.5 text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all pr-10 disabled:opacity-50 font-mono" 
+                className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-primary/20 rounded-xl px-4 py-3.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all pr-10 disabled:opacity-50 font-mono" 
                 type="text" 
                 value={inputAddress}
                 onChange={(e) => setInputAddress(e.target.value)}
@@ -81,7 +81,7 @@ const Sidebar = ({
           <button 
             onClick={handleRefresh}
             disabled={isLoading || !inputAddress}
-            className="w-full bg-primary/20 hover:bg-primary/30 text-white border border-primary/30 py-3.5 rounded-xl text-sm font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center justify-center gap-1 group"
+            className="w-full bg-primary/10 dark:bg-primary/20 hover:bg-primary/20 dark:hover:bg-primary/30 text-primary dark:text-white border border-primary/20 dark:border-primary/30 py-3.5 rounded-xl text-sm font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex flex-col items-center justify-center gap-1 group"
           >
             <div className="flex items-center gap-2">
               <span className={`material-symbols-outlined text-sm ${isLoading ? 'animate-spin' : 'group-hover:rotate-12 transition-transform'}`}>
@@ -105,8 +105,8 @@ const Sidebar = ({
           </div>
 
           <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900/40 border border-white/5 hover:border-primary/20 transition-colors">
-              <span className="text-xs font-medium text-slate-300">Glassmorphism</span>
+            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 hover:border-primary/40 dark:hover:border-primary/20 transition-colors">
+              <span className="text-xs font-medium text-slate-700 dark:text-slate-300">Glassmorphism</span>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input 
                   checked={customizer.glassEffect} 
@@ -119,7 +119,7 @@ const Sidebar = ({
             </div>
 
             {customizer.glassEffect && (
-              <div className="p-3 rounded-xl bg-slate-900/40 border border-white/5">
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-[10px] text-slate-500 font-bold uppercase">Blur Intensity</span>
                   <span className="text-[10px] text-primary font-mono">{customizer.blurAmount ?? 12}px</span>
@@ -135,8 +135,8 @@ const Sidebar = ({
               </div>
             )}
 
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900/40 border border-white/5 hover:border-primary/20 transition-colors">
-              <span className="text-xs font-medium text-slate-300">QR Info Card</span>
+            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 hover:border-primary/40 dark:hover:border-primary/20 transition-colors">
+              <span className="text-xs font-medium text-slate-700 dark:text-slate-300">QR Info Card</span>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input 
                   checked={customizer.showQr} 
@@ -149,15 +149,15 @@ const Sidebar = ({
             </div>
 
 
-            <div className="p-3 rounded-xl bg-slate-900/40 border border-white/5">
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5">
               <span className="text-[10px] text-slate-500 font-bold uppercase block mb-3">Background Style</span>
-              <div className="flex gap-2 p-1 bg-black/20 rounded-lg">
+              <div className="flex gap-2 p-1 bg-slate-100 dark:bg-black/20 rounded-lg">
                 <button 
                   onClick={() => handleCustomizerChange('backgroundType', 'color')}
                   className={`flex-1 py-3 text-sm font-semibold tracking-wide rounded-lg transition-all ${
                     customizer.backgroundType === 'color' 
-                      ? 'bg-primary text-white shadow-lg' 
-                      : 'bg-white/5 text-white/40 hover:bg-white/10'
+                  ? 'bg-primary text-white shadow-lg' 
+                      : 'bg-white hover:bg-slate-50 text-slate-500 dark:bg-white/5 dark:text-white/40 dark:hover:bg-white/10'
                   }`}
                 >
                   Gradient
@@ -175,15 +175,15 @@ const Sidebar = ({
               </div>
 
               {customizer.backgroundType === 'image' && (
-                <div className="mt-4 pt-4 border-t border-white/5">
+                <div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/5">
                   <span className="text-[10px] text-slate-500 font-bold uppercase block mb-3">Select Art</span>
                   <div className="flex gap-3">
                     <button 
                       onClick={() => handleCustomizerChange('selectedBg', 'bg1')}
                       className={`size-10 rounded-full border-2 transition-all flex items-center justify-center text-xs font-semibold ${
                         customizer.selectedBg === 'bg1' 
-                          ? 'border-primary bg-primary/20 text-primary shadow-[0_0_15px_rgba(101,145,255,0.3)]' 
-                          : 'border-white/10 bg-white/5 text-white/40 hover:border-white/20'
+                          ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20 shadow-[0_0_15px_rgba(101,145,255,0.3)]' 
+                          : 'border-slate-300 dark:border-white/10 bg-white dark:bg-white/5 text-slate-400 dark:text-white/40 hover:border-slate-400 dark:hover:border-white/20'
                       }`}
                     >
                       1
@@ -192,8 +192,8 @@ const Sidebar = ({
                       onClick={() => handleCustomizerChange('selectedBg', 'bg2')}
                       className={`size-10 rounded-full border-2 transition-all flex items-center justify-center text-xs font-semibold ${
                         customizer.selectedBg === 'bg2' 
-                          ? 'border-primary bg-primary/20 text-primary shadow-[0_0_15px_rgba(101,145,255,0.3)]' 
-                          : 'border-white/10 bg-white/5 text-white/40 hover:border-white/20'
+                          ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20 shadow-[0_0_15px_rgba(101,145,255,0.3)]' 
+                          : 'border-slate-300 dark:border-white/10 bg-white dark:bg-white/5 text-slate-400 dark:text-white/40 hover:border-slate-400 dark:hover:border-white/20'
                       }`}
                     >
                       2
@@ -202,8 +202,8 @@ const Sidebar = ({
                       onClick={() => handleCustomizerChange('selectedBg', 'bg3')}
                       className={`size-10 rounded-full border-2 transition-all flex items-center justify-center text-xs font-semibold ${
                         customizer.selectedBg === 'bg3' 
-                          ? 'border-primary bg-primary/20 text-primary shadow-[0_0_15px_rgba(101,145,255,0.3)]' 
-                          : 'border-white/10 bg-white/5 text-white/40 hover:border-white/20'
+                          ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20 shadow-[0_0_15px_rgba(101,145,255,0.3)]' 
+                          : 'border-slate-300 dark:border-white/10 bg-white dark:bg-white/5 text-slate-400 dark:text-white/40 hover:border-slate-400 dark:hover:border-white/20'
                       }`}
                     >
                       3
@@ -212,8 +212,8 @@ const Sidebar = ({
                       onClick={() => handleCustomizerChange('selectedBg', 'bg4')}
                       className={`size-10 rounded-full border-2 transition-all flex items-center justify-center text-xs font-semibold ${
                         customizer.selectedBg === 'bg4' 
-                          ? 'border-primary bg-primary/20 text-primary shadow-[0_0_15px_rgba(101,145,255,0.3)]' 
-                          : 'border-white/10 bg-white/5 text-white/40 hover:border-white/20'
+                          ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20 shadow-[0_0_15px_rgba(101,145,255,0.3)]' 
+                          : 'border-slate-300 dark:border-white/10 bg-white dark:bg-white/5 text-slate-400 dark:text-white/40 hover:border-slate-400 dark:hover:border-white/20'
                       }`}
                     >
                       4
@@ -223,7 +223,7 @@ const Sidebar = ({
               )}
 
               {customizer.backgroundType === 'color' && (
-                <div className="mt-4 pt-4 border-t border-white/5 space-y-3">
+                <div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/5 space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-slate-500 font-bold uppercase">Gradient Start</span>
                     <input 
@@ -246,7 +246,7 @@ const Sidebar = ({
               )}
             </div>
 
-            <div className="p-3 rounded-xl bg-slate-900/40 border border-white/5">
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5">
               <span className="text-[10px] text-slate-500 font-bold uppercase block mb-3">Brand Colors</span>
               <div className="flex justify-between items-center">
                 <div className="flex gap-2.5">
@@ -259,7 +259,7 @@ const Sidebar = ({
                     />
                   ))}
                 </div>
-                <div className="h-6 w-px bg-white/10"></div>
+                <div className="h-6 w-px bg-slate-200 dark:bg-white/10"></div>
                 <input 
                   type="color" 
                   value={customizer.accentColor}
@@ -271,7 +271,7 @@ const Sidebar = ({
           </div>
         </section>
 
-        <div className="mt-8 pt-6 border-t border-white/5">
+        <div className="mt-8 pt-6 border-t border-slate-200 dark:border-white/5">
           <button 
             onClick={onExport}
             className="w-full bg-white text-black font-semibold py-4 rounded-xl text-sm tracking-wide hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl flex items-center justify-center gap-2"

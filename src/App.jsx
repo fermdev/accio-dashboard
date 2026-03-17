@@ -25,6 +25,7 @@ function App() {
     exportError,
     setExportError 
   } = useExport();
+  const [theme, setTheme] = useState('dark');
   const [mobileTab, setMobileTab] = useState('edit'); // 'edit' | 'preview'
   const [currentView, setCurrentView] = useState('editor'); // 'editor' | 'dashboard' | 'templates' | 'analytics'
   
@@ -39,6 +40,16 @@ function App() {
     gradientColor1: '#1B1A1A',
     gradientColor2: '#1e2440'
   });
+
+  React.useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
 
   const onExport = () => handleExport('social-card-export', `accio-${poolData?.creatorName || 'card'}.jpg`);
 
@@ -68,6 +79,8 @@ function App() {
         onExport={onExport} 
         currentView={currentView}
         setCurrentView={setCurrentView}
+        theme={theme}
+        toggleTheme={toggleTheme}
       />
 
       {/* Exporting Loader Overlay */}
@@ -197,7 +210,7 @@ function App() {
             )}
 
             {/* Mobile Tab Bar */}
-            <div className="flex border-t border-primary/20 bg-background-dark shrink-0">
+            <div className="flex border-t border-primary/20 bg-white dark:bg-background-dark shrink-0">
               <button
                 onClick={() => setMobileTab('edit')}
                 className={`flex-1 flex flex-col items-center justify-center py-3 gap-1 text-[10px] font-bold uppercase tracking-widest transition-colors ${
@@ -221,7 +234,7 @@ function App() {
         ) : currentView === 'market' ? (
           <>
             <JupiterSwap key="jupiter-market-mobile" />
-            <div className="flex border-t border-primary/20 bg-background-dark shrink-0">
+            <div className="flex border-t border-primary/20 bg-white dark:bg-background-dark shrink-0">
               <button
                 onClick={() => setCurrentView('editor')}
                 className="flex-1 flex flex-col items-center justify-center py-3 gap-1 text-[10px] font-bold text-slate-500 uppercase tracking-widest transition-colors"

@@ -1,4 +1,5 @@
 import React from 'react';
+import accessLogo from '../assets/access-logo.png';
 
 const Footer = () => {
   return (
@@ -25,9 +26,9 @@ const Footer = () => {
         </a>
       </div>
       
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <span className="text-[10px] text-slate-400 dark:text-white/20 font-bold uppercase tracking-[0.2em]">Powered by</span>
-        <span className="text-sm font-black text-slate-900 dark:text-white tracking-tight uppercase">accio</span>
+        <img src={accessLogo} alt="Access Protocol" className="h-4 opacity-80 dark:invert dark:opacity-40" />
       </div>
     </footer>
   );

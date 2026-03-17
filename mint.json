@@ -54,9 +54,17 @@
       }
     ]
   },
+  "navbar": {
+    "links": [
+      {
+        "label": "Dashboard",
+        "href": "https://accio-v1.vercel.app/"
+      }
+    ]
+  },
   "footer": {
     "socials": {
-      "x": "https://x.com/AccessProtocol",
+      "x": "https://x.com/accio_access",
       "github": "https://github.com/fermdev/accio-dashboard"
     }
   }

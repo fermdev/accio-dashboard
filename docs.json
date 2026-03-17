@@ -1,6 +1,7 @@
 {
   "$schema": "https://mintlify.com/schema.json",
   "name": "Accio Ecosystem",
+  "theme": "mint",
   "logo": {
     "dark": "/images/placeholders/logo.png",
     "light": "/images/placeholders/logo.png"

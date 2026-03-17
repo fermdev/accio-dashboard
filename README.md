@@ -1,16 +1,49 @@
-# React + Vite
+# Accio Dashboard & Creator Card Generator 🪄
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Welcome to **Accio**, a sleek and interactive dashboard built for the **Access Protocol** ecosystem on Solana. Accio empowers creators and users by providing real-time on-chain data visualization and a customizable creator card generator.
 
-Currently, two official plugins are available:
+## ✨ Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Dashboard & Analytics:** Accio fetches live, on-chain data directly from the Solana blockchain, presenting vital statistics such as total staked ACS, min stake requirements, and subscriber counts in an intuitive interface.
+- **Creator Card Generator:** Instantly generate branded, custom, and visually appealing profile cards. Creators can select different art backgrounds, adjust typography, and see a live preview of their card before exporting it as an image (`html-to-image`).
+- **Web3 Native Authentication:** Seamlessly integrates with [Privy](https://privy.io/) (`@privy-io/react-auth`) for frictionless onboarding, supporting both traditional and Web3 login methods.
+- **Optimized for Solana:** Built with the latest `@solana/web3.js` and `@solana/kit` to fetch and decode on-chain pool data rapidly and reliably.
 
-## React Compiler
+## 🛠️ Technology Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Accio is crafted with a modern, high-performance web stack:
+- **Frontend Framework:** React 19 powered by Vite for lightning-fast HMR and optimized builds.
+- **Styling:** Tailwind CSS v4 for rapid, responsive, and beautiful utility-first design.
+- **Web3 & Solana:** `@solana/web3.js`, `@solana-program/*`, and Privy for wallet authentication and RPC interactions.
+- **Exporting:** `html-to-image` for capturing and sharing customizable creator cards.
 
-## Expanding the ESLint configuration
+## 🚀 Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+To run Accio locally:
+
+1. **Clone the repository:**
+   ```bash
+   git clone <your-repo-url>
+   cd acscard
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Build for production:**
+   ```bash
+   npm run build
+   ```
+
+## 🤝 Contributing
+Contributions, issues, and feature requests are welcome! Feel free to check the issues page.
+
+---
+*Built with ❤️ for the Access Protocol community.*

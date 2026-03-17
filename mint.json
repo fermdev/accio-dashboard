@@ -3,10 +3,10 @@
   "name": "Accio Ecosystem",
   "theme": "mint",
   "logo": {
-    "dark": "/images/placeholders/logo.png",
-    "light": "/images/placeholders/logo.png"
+    "dark": "/images/iconlogo.png",
+    "light": "/images/iconlogo.png"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/images/iconlogo.png",
   "colors": {
     "primary": "#00A3FF",
     "light": "#33B5FF",

@@ -3,6 +3,10 @@ import { Connection, PublicKey } from '@solana/web3.js';
 import creatorRegistry from '../data/creator_registry.json';
 
 const ACCESS_PROGRAM_ID = new PublicKey('6HW8dXjtiTGkD4jzXs7igdFmZExPpmwUrRN5195xGup');
+
+let cachedPoolData = null;
+let lastPoolsFetchTime = 0;
+const POOLS_CACHE_DURATION = 1000 * 60 * 60; // 1 hour
 const RPC_ENDPOINTS = [
   'https://api.mainnet-beta.solana.com',
   'https://solana.publicnode.com',
@@ -137,9 +141,34 @@ export const useAccessPool = () => {
         }
       }
 
-      const rank = Math.max(1, 100 - Math.floor(totalLocked / 1000000));
-      
+      let rank = Math.max(1, 100 - Math.floor(totalLocked / 1000000)); // Fallback
       const poolAddressStr = pubkey.toString();
+
+      try {
+        const now = Date.now();
+        if (!cachedPoolData || now - lastPoolsFetchTime > POOLS_CACHE_DURATION) {
+            const poolsRes = await fetch('https://go-api.accessprotocol.co/pools');
+            if (poolsRes.ok) {
+                cachedPoolData = await poolsRes.json();
+                lastPoolsFetchTime = now;
+            }
+        }
+        
+        if (cachedPoolData && Array.isArray(cachedPoolData)) {
+            // Sort by TotalStaked descending to find real rank
+            const sortedPools = [...cachedPoolData].sort((a, b) => {
+                const stakedA = a.TotalStaked || 0;
+                const stakedB = b.TotalStaked || 0;
+                return stakedB - stakedA;
+            });
+            const index = sortedPools.findIndex(p => p.Pubkey === poolAddressStr);
+            if (index !== -1) {
+                rank = index + 1;
+            }
+        }
+      } catch (e) {
+          console.warn("Failed to fetch real rank from pools API.");
+      }
       
       // Resolve Creator Name
       let creatorName = getCreatorName(poolAddressStr, address);

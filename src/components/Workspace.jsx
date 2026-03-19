@@ -37,15 +37,16 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
   
   // Handlers for Creator Data
   const creatorDisplay = poolData || {
-    creatorName: 'Galang Ferm',
-    totalLocked: 22450120,
-    stakers: 1240,
-    rank: 14,
-    poolAddress: '0x71C765...d897'
+    creatorName: 'Creator Name',
+    totalLocked: 100000000,
+    stakers: 5000,
+    rank: 5,
+    poolAddress: '3x5J...TTUf'
   };
 
   const stakerDisplay = stakerData || {
-    address: 'Abc1...xyz2',
+    address: '3x5J...TTUf',
+    name: 'Subscriber Name',
     totalStaked: 500000,
     poolCount: 12,
     stakeApy: 28.55
@@ -68,7 +69,7 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
               </div>
               <p className="text-primary text-[14px] font-black uppercase tracking-[0.3em] mb-1.5">Subscriber Profile</p>
               <h1 className="text-5xl font-black text-white tracking-[-0.02em] leading-none soft-text-shadow">
-                {stakerDisplay.address.length > 20 ? `${stakerDisplay.address.slice(0, 6)}...${stakerDisplay.address.slice(-6)}` : stakerDisplay.address}
+                {stakerDisplay.name || (stakerDisplay.address.length > 20 ? `${stakerDisplay.address.slice(0, 6)}...${stakerDisplay.address.slice(-6)}` : stakerDisplay.address)}
               </h1>
             </div>
             

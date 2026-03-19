@@ -122,8 +122,13 @@ export const useSubscriber = () => {
       const finalAcs = Number(totalAcs / 1000000n);
       console.log(`[useSubscriber] Final Result: ${finalAcs} ACS / ${foundPools.size} pools.`);
 
+      // 4. Resolve Profile Name (if user is a creator)
+      const profile = poolList.find(p => p.UserPubkey === userPkStr);
+      const name = profile ? profile.Name : null;
+
       setSubscriberData({
         address: userPkStr,
+        name: name,
         totalStaked: Math.floor(finalAcs),
         poolCount: foundPools.size,
         stakeApy: 28.55

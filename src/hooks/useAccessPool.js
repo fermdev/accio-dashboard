@@ -144,6 +144,7 @@ export const useAccessPool = () => {
       let rank = Math.max(1, 100 - Math.floor(totalLocked / 1000000)); // Fallback
       const poolAddressStr = pubkey.toString();
 
+      let tags = [];
       try {
         const now = Date.now();
         if (!cachedPoolData || now - lastPoolsFetchTime > POOLS_CACHE_DURATION) {
@@ -165,9 +166,15 @@ export const useAccessPool = () => {
             if (index !== -1) {
                 rank = index + 1;
             }
+            
+            // Extract the CategoryName to use as the badge/tag
+            const currentPool = cachedPoolData.find(p => p.Pubkey === poolAddressStr);
+            if (currentPool && currentPool.CategoryName) {
+                tags.push(currentPool.CategoryName);
+            }
         }
       } catch (e) {
-          console.warn("Failed to fetch real rank from pools API.");
+          console.warn("Failed to fetch real rank or category from pools API.");
       }
       
       // Resolve Creator Name
@@ -193,7 +200,8 @@ export const useAccessPool = () => {
         stakers,
         rank,
         minStake,
-        poolAddress: poolAddressStr
+        poolAddress: poolAddressStr,
+        tags
       });
 
     } catch (err) {

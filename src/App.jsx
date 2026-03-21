@@ -40,7 +40,8 @@ function App() {
     gradientColor1: '#1B1A1A',
     gradientColor2: '#1e2440',
     customBgImage: null,
-    customBgZoom: 100
+    customBgZoom: 100,
+    stakerScore: ''
   });
 
   React.useEffect(() => {

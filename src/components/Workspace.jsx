@@ -47,7 +47,8 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
     totalLocked: 100000000,
     stakers: 5000,
     rank: 5,
-    poolAddress: '3x5J...TTUf'
+    poolAddress: '3x5J...TTUf',
+    tags: ['NFT', 'Community', 'Scribe']
   };
 
   const stakerDisplay = stakerData || {
@@ -68,24 +69,54 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
     : customizer?.selectedBg === 'bg2' ? cardBg2
     : cardBg1;
 
+  const getStakerRank = (staked) => {
+    if (staked >= 100000000) return { name: 'Ecosystem Pillar', icon: '🏛️', color: 'bg-gradient-to-r from-red-600 to-pink-400 text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(239,68,68,1)] font-black', border: 'border-red-500/60 shadow-[0_0_25px_rgba(239,68,68,0.5)]', bg: 'bg-gradient-to-br from-red-900/40 to-pink-900/40' };
+    if (staked >= 50000000) return { name: 'Sovereign', icon: '👑', color: 'bg-gradient-to-r from-purple-500 to-purple-300 text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(192,132,252,1)]', border: 'border-purple-400/60 shadow-[0_0_20px_rgba(192,132,252,0.4)]', bg: 'bg-purple-900/40' };
+    if (staked >= 10000000) return { name: 'Vanguard', icon: '⚔️', color: 'bg-gradient-to-r from-cyan-500 to-cyan-100 text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(165,243,252,1)]', border: 'border-cyan-300/60 shadow-[0_0_20px_rgba(165,243,252,0.4)]', bg: 'bg-cyan-900/40' };
+    if (staked >= 1000000) return { name: 'Guardian', icon: '🛡️', color: 'bg-gradient-to-r from-yellow-500 to-yellow-100 text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(250,204,21,1)]', border: 'border-yellow-400/60 shadow-[0_0_20px_rgba(250,204,21,0.4)]', bg: 'bg-yellow-900/40' };
+    if (staked >= 100000) return { name: 'Patron', icon: '🎖️', color: 'bg-gradient-to-r from-emerald-500 to-emerald-200 text-transparent bg-clip-text drop-shadow-[0_0_12px_rgba(52,211,153,0.9)]', border: 'border-emerald-400/50 shadow-[0_0_15px_rgba(52,211,153,0.3)]', bg: 'bg-emerald-900/40' };
+    if (staked >= 10000) return { name: 'Supporter', icon: '🤝', color: 'bg-gradient-to-r from-orange-500 to-orange-200 text-transparent bg-clip-text drop-shadow-[0_0_10px_rgba(251,146,60,1)]', border: 'border-orange-500/50 shadow-[0_0_15px_rgba(251,146,60,0.3)]', bg: 'bg-orange-950/50' };
+    return { name: 'Scout', icon: '🚶', color: 'bg-gradient-to-r from-slate-400 to-slate-100 text-transparent bg-clip-text drop-shadow-[0_0_8px_rgba(203,213,225,0.8)]', border: 'border-slate-400/40 shadow-[0_0_10px_rgba(203,213,225,0.1)]', bg: 'bg-slate-800/40' };
+  };
+
   const renderCardContent = () => (
-    <div className="relative z-10 w-full h-full flex flex-col pt-8 pb-10 px-10 justify-between text-left">
+    <div className="relative z-10 w-full h-full flex flex-col pt-8 pb-16 px-10 justify-between text-left">
       <div className="flex flex-col justify-start flex-1">
         {isStakerMode ? (
           <>
-            <div className="mb-2">
+            <div className="mb-0">
               <div className="flex items-center gap-2.5 mb-3">
                 <img src={accioLogo} alt="Accio" className="w-9 h-9 object-contain" />
                 <span className="text-white text-[22px] font-black tracking-tight leading-none font-logo">accio</span>
               </div>
               <p className="text-primary text-[16px] font-black uppercase tracking-[0.3em] mb-2">Subscriber Profile</p>
-              <h1 className="text-6xl font-black text-white tracking-[-0.02em] leading-none soft-text-shadow">
-                {stakerDisplay.name || (stakerDisplay.address.length > 20 ? `${stakerDisplay.address.slice(0, 6)}...${stakerDisplay.address.slice(-6)}` : stakerDisplay.address)}
-              </h1>
+              {(() => {
+                const rank = getStakerRank(stakerDisplay.totalStaked);
+                const gradeClass = rank.color.replace(/drop-shadow-\[[^\]]+\]/g, '').trim();
+                const glowClass = (rank.color.match(/drop-shadow-\[[^\]]+\]/g) || []).join(' ');
+                
+                return (
+                  <div className="flex items-start tracking-[-0.02em] leading-tight mb-2">
+                    <div className="drop-shadow-[0_4px_10px_rgba(0,0,0,0.6)]">
+                      <span className={`text-6xl font-black mr-3 block pb-2 ${gradeClass}`}>
+                        {stakerDisplay.name || (stakerDisplay.address.length > 20 ? `${stakerDisplay.address.slice(0, 6)}...${stakerDisplay.address.slice(-6)}` : stakerDisplay.address)}
+                      </span>
+                    </div>
+                    <div className="flex gap-2 transition-all mt-1.5 mb-1 items-center">
+                      <span className={`flex items-center px-5 py-2.5 ${rank.bg} backdrop-blur-md rounded-2xl text-[20px] font-black tracking-widest uppercase border leading-none shadow-2xl ${rank.border}`}>
+                        <span className="mr-3 text-[26px] drop-shadow-md">{rank.icon}</span> 
+                        <span className={`block ${glowClass}`}>
+                          <span className={`block pb-1 ${gradeClass}`}>{rank.name}</span>
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
             
-            <div className="mb-4">
-              <p className="text-white/40 text-[16px] font-black uppercase tracking-[0.15em] mb-2">Total ACS Staked</p>
+            <div className="mb-1 mt-0 flex-1">
+              <p className="text-white/40 text-[16px] font-black uppercase tracking-[0.15em] mb-1">Total ACS Staked</p>
               <h2 className="text-7xl font-black text-white tracking-[-0.02em] leading-none drop-shadow-2xl soft-text-shadow">
                 {stakerDisplay.totalStaked.toLocaleString()} <span className="text-primary text-7xl ml-2 tracking-normal">ACS</span>
               </h2>
@@ -112,7 +143,18 @@ const Workspace = ({ poolData, stakerData, customizer, exportId = "social-card-e
                 <span className="text-white text-[22px] font-black tracking-tight leading-none font-logo">accio</span>
               </div>
               <p className="text-primary text-[16px] font-black uppercase tracking-[0.3em] mb-2">Creator Profile</p>
-              <h1 className="text-6xl font-black text-white tracking-[-0.02em] leading-none soft-text-shadow">{creatorDisplay.creatorName}</h1>
+              <h1 className="flex items-start tracking-[-0.02em] leading-none soft-text-shadow">
+                <span className="text-6xl font-black text-white mr-3">{creatorDisplay.creatorName}</span>
+                {creatorDisplay.tags && creatorDisplay.tags.length > 0 && (
+                  <div className="flex gap-2 pt-1 transition-all">
+                    {creatorDisplay.tags.map(tag => (
+                      <span key={tag} className="px-2.5 py-1 bg-white/10 backdrop-blur-md rounded-md text-white/90 text-[12px] font-bold tracking-widest uppercase border border-white/20 shadow-sm leading-none">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </h1>
             </div>
             
             <div className="mb-4">

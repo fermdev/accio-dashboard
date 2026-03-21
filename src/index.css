@@ -5,6 +5,22 @@
   src: url('/fonts/All-Round-Gothic-Book.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  font-size: 16px;
+  font-family: 'Poppins', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Prevent browsers (especially Edge/Safari) from auto-adjusting font sizes */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));

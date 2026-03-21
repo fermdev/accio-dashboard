@@ -10,6 +10,7 @@ const Header = ({ onExport, currentView, setCurrentView, theme, toggleTheme }) =
     { id: 'editor', label: 'Editor' },
     { id: 'campaign', label: 'Campaign' },
     { id: 'analytics', label: 'Analytics' },
+    { id: 'hub', label: 'Hub', href: 'https://hub.accessprotocol.co/' },
   ];
 
   const handleNavClick = (view) => {
@@ -31,15 +32,27 @@ const Header = ({ onExport, currentView, setCurrentView, theme, toggleTheme }) =
       {/* Desktop Navigation */}
       <nav className="hidden md:flex items-center gap-8 h-full">
         {navItems.map((item) => (
-          <button 
-            key={item.id}
-            onClick={() => setCurrentView(item.id)}
-            className={`text-sm font-medium transition-colors cursor-pointer pb-1 border-b-2 ${
-              currentView === item.id ? 'text-primary dark:text-white border-primary' : 'text-slate-600 dark:text-slate-400 border-transparent hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            {item.label}
-          </button>
+          item.href ? (
+            <a 
+              key={item.id}
+              href={item.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium transition-colors cursor-pointer pb-1 border-b-2 text-slate-600 dark:text-slate-400 border-transparent hover:text-slate-900 dark:hover:text-white"
+            >
+              {item.label}
+            </a>
+          ) : (
+            <button 
+              key={item.id}
+              onClick={() => setCurrentView(item.id)}
+              className={`text-sm font-medium transition-colors cursor-pointer pb-1 border-b-2 ${
+                currentView === item.id ? 'text-primary dark:text-white border-primary' : 'text-slate-600 dark:text-slate-400 border-transparent hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              {item.label}
+            </button>
+          )
         ))}
       </nav>
       
@@ -69,17 +82,30 @@ const Header = ({ onExport, currentView, setCurrentView, theme, toggleTheme }) =
       {isMenuOpen && (
         <div className="absolute top-full left-0 right-0 bg-white dark:bg-background-dark border-b border-primary/20 p-4 flex flex-col gap-2 md:hidden animate-in slide-in-from-top duration-200">
           {navItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => handleNavClick(item.id)}
-              className={`w-full text-left px-4 py-3 rounded-lg text-sm font-bold transition-all ${
-                currentView === item.id 
-                  ? 'bg-primary text-white shadow-lg shadow-primary/20' 
-                  : 'text-slate-800 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5'
-              }`}
-            >
-              {item.label}
-            </button>
+            item.href ? (
+              <a
+                key={item.id}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full text-left px-4 py-3 rounded-lg text-sm font-bold transition-all text-slate-800 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {item.label}
+              </a>
+            ) : (
+              <button
+                key={item.id}
+                onClick={() => handleNavClick(item.id)}
+                className={`w-full text-left px-4 py-3 rounded-lg text-sm font-bold transition-all ${
+                  currentView === item.id 
+                    ? 'bg-primary text-white shadow-lg shadow-primary/20' 
+                    : 'text-slate-800 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5'
+                }`}
+              >
+                {item.label}
+              </button>
+            )
           ))}
         </div>
       )}

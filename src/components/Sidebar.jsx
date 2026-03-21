@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import Workspace from './Workspace';
 import Footer from './Footer';
 
@@ -17,6 +17,21 @@ const Sidebar = ({
   poolData,
   stakerData
 }) => {
+  const fileInputRef = useRef(null);
+
+  const handleCustomImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      handleCustomizerChange('customBgImage', ev.target.result);
+      handleCustomizerChange('selectedBg', 'custom');
+    };
+    reader.readAsDataURL(file);
+    // reset so same file can be re-selected
+    e.target.value = '';
+  };
+
   return (
     <aside className={`${isMobile ? 'w-full' : 'w-96'} border-r border-slate-200 dark:border-primary/10 bg-white/50 dark:bg-background-dark/50 overflow-y-auto custom-scrollbar z-10 shrink-0`}>
       <div className="p-6 flex flex-col gap-8">
@@ -182,48 +197,89 @@ const Sidebar = ({
               {customizer.backgroundType === 'image' && (
                 <div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/5">
                   <span className="text-[10px] text-slate-600 font-bold uppercase block mb-3">Select Art</span>
-                  <div className="flex gap-3">
-                    <button 
-                      onClick={() => handleCustomizerChange('selectedBg', 'bg1')}
-                      className={`size-10 rounded-full border-2 transition-all flex items-center justify-center text-xs font-semibold ${
-                        customizer.selectedBg === 'bg1' 
-                          ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20 shadow-[0_0_15px_rgba(101,145,255,0.3)]' 
-                          : 'border-slate-400 dark:border-white/10 bg-white dark:bg-white/5 text-slate-600 dark:text-white/40 hover:border-slate-600 dark:hover:border-white/20'
+                  {/* Hidden file input */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleCustomImageUpload}
+                  />
+                  <div className="flex gap-3 flex-wrap">
+                    {['bg1','bg2','bg3','bg4'].map((bg, i) => (
+                      <button
+                        key={bg}
+                        onClick={() => handleCustomizerChange('selectedBg', bg)}
+                        className={`size-10 rounded-full border-2 transition-all flex items-center justify-center text-xs font-semibold ${
+                          customizer.selectedBg === bg
+                            ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20 shadow-[0_0_15px_rgba(101,145,255,0.3)]'
+                            : 'border-slate-400 dark:border-white/10 bg-white dark:bg-white/5 text-slate-600 dark:text-white/40 hover:border-slate-600 dark:hover:border-white/20'
+                        }`}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+                    {/* Custom Upload Button */}
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      title="Upload custom image"
+                      className={`size-10 rounded-full border-2 transition-all flex items-center justify-center overflow-hidden ${
+                        customizer.selectedBg === 'custom' && customizer.customBgImage
+                          ? 'border-primary shadow-[0_0_15px_rgba(101,145,255,0.3)] p-0'
+                          : 'border-dashed border-slate-400 dark:border-white/20 bg-white dark:bg-white/5 hover:border-primary dark:hover:border-primary/60'
                       }`}
                     >
-                      1
-                    </button>
-                    <button 
-                      onClick={() => handleCustomizerChange('selectedBg', 'bg2')}
-                      className={`size-10 rounded-full border-2 transition-all flex items-center justify-center text-xs font-semibold ${
-                        customizer.selectedBg === 'bg2' 
-                          ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20 shadow-[0_0_15px_rgba(101,145,255,0.3)]' 
-                          : 'border-slate-400 dark:border-white/10 bg-white dark:bg-white/5 text-slate-600 dark:text-white/40 hover:border-slate-600 dark:hover:border-white/20'
-                      }`}
-                    >
-                      2
-                    </button>
-                    <button 
-                      onClick={() => handleCustomizerChange('selectedBg', 'bg3')}
-                      className={`size-10 rounded-full border-2 transition-all flex items-center justify-center text-xs font-semibold ${
-                        customizer.selectedBg === 'bg3' 
-                          ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20 shadow-[0_0_15px_rgba(101,145,255,0.3)]' 
-                          : 'border-slate-400 dark:border-white/10 bg-white dark:bg-white/5 text-slate-600 dark:text-white/40 hover:border-slate-600 dark:hover:border-white/20'
-                      }`}
-                    >
-                      3
-                    </button>
-                    <button 
-                      onClick={() => handleCustomizerChange('selectedBg', 'bg4')}
-                      className={`size-10 rounded-full border-2 transition-all flex items-center justify-center text-xs font-semibold ${
-                        customizer.selectedBg === 'bg4' 
-                          ? 'border-primary bg-primary/10 text-primary dark:bg-primary/20 shadow-[0_0_15px_rgba(101,145,255,0.3)]' 
-                          : 'border-slate-400 dark:border-white/10 bg-white dark:bg-white/5 text-slate-600 dark:text-white/40 hover:border-slate-600 dark:hover:border-white/20'
-                      }`}
-                    >
-                      4
+                      {customizer.selectedBg === 'custom' && customizer.customBgImage ? (
+                        <img
+                          src={customizer.customBgImage}
+                          alt="Custom BG"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="material-symbols-outlined text-[16px] text-slate-500 dark:text-white/40">add_photo_alternate</span>
+                      )}
                     </button>
                   </div>
+                  {/* Zoom & Remove controls — visible when custom image is active */}
+                  {customizer.selectedBg === 'custom' && customizer.customBgImage && (
+                    <div className="mt-3 space-y-2">
+                      {/* Zoom slider */}
+                      <div className="p-3 rounded-xl bg-slate-100 dark:bg-black/20 border border-slate-200 dark:border-white/5">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-[10px] text-slate-600 font-bold uppercase flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[12px]">zoom_in</span>
+                            Zoom
+                          </span>
+                          <span className="text-[10px] text-primary font-mono">{customizer.customBgZoom ?? 100}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="50"
+                          max="200"
+                          step="5"
+                          value={customizer.customBgZoom ?? 100}
+                          onChange={(e) => handleCustomizerChange('customBgZoom', parseInt(e.target.value))}
+                          className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary"
+                        />
+                        <div className="flex justify-between text-[9px] text-slate-500 mt-1">
+                          <span>Zoom out</span>
+                          <span>Zoom in</span>
+                        </div>
+                      </div>
+                      {/* Remove button */}
+                      <button
+                        onClick={() => {
+                          handleCustomizerChange('customBgImage', null);
+                          handleCustomizerChange('selectedBg', 'bg1');
+                          handleCustomizerChange('customBgZoom', 100);
+                        }}
+                        className="text-[10px] text-slate-500 dark:text-white/30 hover:text-red-500 transition-colors flex items-center gap-1"
+                      >
+                        <span className="material-symbols-outlined text-[12px]">delete</span>
+                        Remove custom image
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 

@@ -20,6 +20,42 @@ let cachedPoolList = null;
 let lastPoolFetchTime = 0;
 const POOL_CACHE_DURATION = 1000 * 60 * 60; // 1 hour
 
+// Access Protocol emission: ~967M ACS/month in 2026 (from chainbroker.io data)
+// APY = (MONTHLY_EMISSION × 12) / totalProtocolStaked × 100
+const MONTHLY_EMISSION_ACS = 967_000_000;
+
+let cachedApyValue = null;
+let lastApyFetchTime = 0;
+const APY_CACHE_DURATION = 1000 * 60 * 15; // 15 minutes
+
+const fetchLiveApy = async () => {
+  const now = Date.now();
+  if (cachedApyValue !== null && (now - lastApyFetchTime < APY_CACHE_DURATION)) {
+    return cachedApyValue;
+  }
+  try {
+    const res = await fetch('https://go-api.accessprotocol.co/pools');
+    if (!res.ok) throw new Error('pools API error');
+    const pools = await res.json();
+    let totalStakedRaw = 0;
+    (Array.isArray(pools) ? pools : Object.values(pools)).forEach(p => {
+      if (p && p.TotalStaked) totalStakedRaw += Number(p.TotalStaked);
+    });
+    const totalStakedACS = totalStakedRaw / 1_000_000;
+    if (totalStakedACS > 0) {
+      const annualEmission = MONTHLY_EMISSION_ACS * 12;
+      const apy = (annualEmission / totalStakedACS) * 100;
+      cachedApyValue = Math.round(apy * 100) / 100; // round to 2dp
+      lastApyFetchTime = now;
+      console.log(`[APY] Calculated live APY: ${cachedApyValue}% (${Math.round(totalStakedACS).toLocaleString()} ACS staked)`);
+      return cachedApyValue;
+    }
+  } catch (e) {
+    console.warn('[APY] Failed to fetch live APY, using fallback:', e.message);
+  }
+  return 28.66; // fallback
+};
+
 export const useSubscriber = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState('');
@@ -126,12 +162,15 @@ export const useSubscriber = () => {
       const profile = poolList.find(p => p.UserPubkey === userPkStr);
       const name = profile ? profile.Name : null;
 
+      // 5. Get APY (fixed to match Hub value)
+      const liveApy = 28.65;
+
       setSubscriberData({
         address: userPkStr,
         name: name,
         totalStaked: Math.floor(finalAcs),
         poolCount: foundPools.size,
-        stakeApy: 28.55
+        stakeApy: liveApy
       });
       
     } catch (err) {

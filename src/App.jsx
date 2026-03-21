@@ -38,7 +38,9 @@ function App() {
     selectedBg: 'bg1',
     blurAmount: 12,
     gradientColor1: '#1B1A1A',
-    gradientColor2: '#1e2440'
+    gradientColor2: '#1e2440',
+    customBgImage: null,
+    customBgZoom: 100
   });
 
   React.useEffect(() => {

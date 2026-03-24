@@ -27,10 +27,24 @@ node_modules/
 *.sln
 *.sw?
 
-# Temporary files
+# Temporary & debug files
 *.tmp
 *.temp
+tmp.json
+pools_dump.json
+
+# Debug output files
 pubkeys_*.txt
 strings_found.txt
 debug_output.txt
 full_debug.txt
+debug_registry.json
+full_registry.json
+registry.json
+sample_registry.json
+pubkeys_all.txt
+pubkeys_found.txt
+
+# Dev/research scripts (local only)
+dev-scripts/
+scripts/

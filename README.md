@@ -1,49 +1,71 @@
-# Accio Dashboard & Creator Card Generator 🪄
+# Accio — Access Protocol Dashboard & Creator Card Generator
 
-Welcome to **Accio**, a sleek and interactive dashboard built for the **Access Protocol** ecosystem on Solana. Accio empowers creators and users by providing real-time on-chain data visualization and a customizable creator card generator.
+<p align="center">
+  <img src="public/favicon.svg" alt="Accio Logo" width="80" />
+</p>
+
+<p align="center">
+  <strong>Real-time on-chain analytics & customizable creator cards for the Access Protocol ecosystem on Solana.</strong>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" />
+  <img src="https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white" />
+  <img src="https://img.shields.io/badge/Solana-Web3.js-9945FF?logo=solana&logoColor=white" />
+</p>
+
+---
 
 ## ✨ Features
 
-- **Dashboard & Analytics:** Accio fetches live, on-chain data directly from the Solana blockchain, presenting vital statistics such as total staked ACS, min stake requirements, and subscriber counts in an intuitive interface.
-- **Creator Card Generator:** Instantly generate branded, custom, and visually appealing profile cards. Creators can select different art backgrounds, adjust typography, and see a live preview of their card before exporting it as an image (`html-to-image`).
-- **Web3 Native Authentication:** Seamlessly integrates with [Privy](https://privy.io/) (`@privy-io/react-auth`) for frictionless onboarding, supporting both traditional and Web3 login methods.
-- **Optimized for Solana:** Built with the latest `@solana/web3.js` and `@solana/kit` to fetch and decode on-chain pool data rapidly and reliably.
+- **Live On-Chain Dashboard** — Fetches real-time data directly from the Solana blockchain: total staked ACS, min-stake requirements, subscriber counts, and more.
+- **Creator Card Generator** — Generate branded, shareable profile cards with customizable backgrounds, typography, and live preview. Export as PNG via `html-to-image`.
+- **Light & Dark Mode** — Full theme support with a polished UI for both modes.
+- **Web3 Authentication** — Frictionless onboarding via [Privy](https://privy.io/), supporting both traditional and wallet-based login.
+- **Campaigns** — Browse and discover active earning campaigns with token reward details.
 
-## 🛠️ Technology Stack
+## 🛠️ Tech Stack
 
-Accio is crafted with a modern, high-performance web stack:
-- **Frontend Framework:** React 19 powered by Vite for lightning-fast HMR and optimized builds.
-- **Styling:** Tailwind CSS v4 for rapid, responsive, and beautiful utility-first design.
-- **Web3 & Solana:** `@solana/web3.js`, `@solana-program/*`, and Privy for wallet authentication and RPC interactions.
-- **Exporting:** `html-to-image` for capturing and sharing customizable creator cards.
+| Layer | Technology |
+|---|---|
+| Framework | React 19 + Vite 6 |
+| Styling | Tailwind CSS v4 |
+| Solana | `@solana/web3.js`, `@solana/kit`, `@solana-program/*` |
+| Auth | Privy (`@privy-io/react-auth`) |
+| Export | `html-to-image` |
 
 ## 🚀 Getting Started
 
-To run Accio locally:
+### Prerequisites
+- Node.js **v20+**
+- npm
 
-1. **Clone the repository:**
-   ```bash
-   git clone <your-repo-url>
-   cd acscard
-   ```
+### Installation
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+```bash
+# 1. Clone the repository
+git clone https://github.com/fermdev/accio-dashboard.git
+cd accio-dashboard
 
-3. **Start the development server:**
-   ```bash
-   npm run dev
-   ```
+# 2. Install dependencies
+npm install
 
-4. **Build for production:**
-   ```bash
-   npm run build
-   ```
+# 3. Start the dev server
+npm run dev
+```
+
+### Build for Production
+
+```bash
+npm run build
+npm run preview
+```
 
 ## 🤝 Contributing
-Contributions, issues, and feature requests are welcome! Feel free to check the issues page.
+
+Contributions, issues, and feature requests are welcome! Feel free to open an issue or submit a pull request.
 
 ---
-*Built with ❤️ for the Access Protocol community.*
+
+*Built with ❤️ for the [Access Protocol](https://accessprotocol.co/) community.*

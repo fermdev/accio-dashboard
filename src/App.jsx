@@ -4,6 +4,7 @@ import Layout from './components/Layout';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Workspace from './components/Workspace';
+import Campaigns from './components/Campaigns';
 import Footer from './components/Footer';
 import ComingSoon from './components/ComingSoon';
 import JupiterSwap from './components/JupiterSwap';
@@ -179,6 +180,8 @@ function App() {
           </>
         ) : currentView === 'market' ? (
           <JupiterSwap key="jupiter-market-desktop" />
+        ) : currentView === 'campaign' ? (
+          <Campaigns key="campaigns-desktop" />
         ) : (
           <ComingSoon title={currentView} />
         )}
@@ -216,6 +219,8 @@ function App() {
               </button>
             </div>
           </>
+        ) : currentView === 'campaign' ? (
+          <Campaigns key="campaigns-mobile" />
         ) : (
           <ComingSoon title={currentView} />
         )}

@@ -123,7 +123,7 @@ const Home = ({ onExplore, onNavigate }) => {
 
           <ScrollReveal direction="up" delay={240}>
             <p className="text-slate-600 dark:text-slate-400 text-base md:text-lg max-w-xl leading-relaxed mb-10">
-              Your hub for Access Protocol on Solana — explore creators, design shareable cards,
+              Your hub for Access Protocol on Solana explore creators, design shareable cards,
               and ask Accio anything about staking and pools.
             </p>
           </ScrollReveal>

@@ -8,6 +8,7 @@ import Campaigns from './components/Campaigns';
 import Footer from './components/Footer';
 import ComingSoon from './components/ComingSoon';
 import JupiterSwap from './components/JupiterSwap';
+import AccioChat from './components/AccioChat';
 import { useAccessPool } from './hooks/useAccessPool';
 import { useSubscriber } from './hooks/useSubscriber';
 import { useExport } from './hooks/useExport';
@@ -178,6 +179,8 @@ function App() {
               customizer={customizer}
             />
           </>
+        ) : currentView === 'dashboard' ? (
+          <AccioChat key="accio-chat-desktop" />
         ) : currentView === 'market' ? (
           <JupiterSwap key="jupiter-market-desktop" />
         ) : currentView === 'campaign' ? (
@@ -206,6 +209,8 @@ function App() {
               isMobile
             />
           </div>
+        ) : currentView === 'dashboard' ? (
+          <AccioChat key="accio-chat-mobile" />
         ) : currentView === 'market' ? (
           <>
             <JupiterSwap key="jupiter-market-mobile" />

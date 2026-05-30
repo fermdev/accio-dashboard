@@ -1,13 +1,59 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import { createChatCompletion } from './api/lib/mimo.js'
 
 // https://vite.dev/config/
-export default defineConfig({
+function accioChatDevPlugin() {
+  return {
+    name: 'accio-chat-dev-api',
+    configureServer(server) {
+      server.middlewares.use('/api/chat', async (req, res, next) => {
+        if (req.method !== 'POST') {
+          res.statusCode = 405
+          res.setHeader('Content-Type', 'application/json')
+          res.end(JSON.stringify({ error: 'Method not allowed' }))
+          return
+        }
+
+        let body = ''
+        req.on('data', (chunk) => { body += chunk })
+        req.on('end', async () => {
+          try {
+            const payload = JSON.parse(body || '{}')
+            const { messages, model } = payload
+            if (!Array.isArray(messages) || messages.length === 0) {
+              res.statusCode = 400
+              res.setHeader('Content-Type', 'application/json')
+              res.end(JSON.stringify({ error: 'messages array is required' }))
+              return
+            }
+            const reply = await createChatCompletion({ messages, model })
+            res.statusCode = 200
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({ message: reply }))
+          } catch (error) {
+            res.statusCode = error.statusCode || 500
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({ error: error.message || 'Chat request failed' }))
+          }
+        })
+        req.on('error', next)
+      })
+    },
+  }
+}
+
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+  Object.assign(process.env, env)
+
+  return {
   plugins: [
     react(), 
     tailwindcss(),
+    accioChatDevPlugin(),
     nodePolyfills({
       globals: {
         Buffer: true,
@@ -60,5 +106,5 @@ export default defineConfig({
       }
     }
   }
-})
+}})
 

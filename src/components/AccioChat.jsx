@@ -220,15 +220,7 @@ const AccioChat = () => {
               onSubmit={handleSubmit}
               className="rounded-[28px] bg-[#1e1f20] border border-white/10 shadow-2xl shadow-black/40 focus-within:border-primary/40 transition-colors"
             >
-              <div className="flex items-end gap-1 px-2 py-2">
-                <button
-                  type="button"
-                  className="size-10 shrink-0 rounded-full flex items-center justify-center text-slate-400 hover:bg-white/10 hover:text-white transition-colors"
-                  title="Attach (coming soon)"
-                >
-                  <span className="material-symbols-outlined">add</span>
-                </button>
-
+              <div className="flex items-end gap-1 px-3 py-2">
                 <textarea
                   ref={textareaRef}
                   rows={1}
@@ -282,12 +274,10 @@ const AccioChat = () => {
                 <button
                   type="submit"
                   disabled={!input.trim() || isLoading}
-                  className="size-10 shrink-0 rounded-full flex items-center justify-center bg-primary text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors mr-1"
+                  className="size-10 shrink-0 rounded-full flex items-center justify-center bg-primary text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
                   title="Send"
                 >
-                  <span className="material-symbols-outlined">
-                    {input.trim() ? 'send' : 'mic'}
-                  </span>
+                  <span className="material-symbols-outlined">send</span>
                 </button>
               </div>
             </form>

@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import { extractQueryTerms, namesMatch, normalizeName } from './searchTerms.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -48,11 +49,16 @@ export async function fetchAllPools() {
     return poolsCache;
   }
 
-  const data = await hubFetch('/pools?order=supporters&per_page=500');
+  const data = await hubFetch('/pools');
   const list = Array.isArray(data) ? data : Object.values(data).filter((p) => p?.Pubkey);
   poolsCache = list;
   poolsCacheTime = now;
   return list;
+}
+
+export async function getPoolByPubkey(pubkey) {
+  const pools = await fetchAllPools();
+  return pools.find((p) => p.Pubkey === pubkey) ?? null;
 }
 
 export async function fetchPoolSupporters(poolPubkey) {
@@ -61,24 +67,23 @@ export async function fetchPoolSupporters(poolPubkey) {
 
 export function searchRegistryByText(text) {
   const registry = loadRegistry();
-  const lower = text.toLowerCase();
-  const tokens = lower
-    .replace(/[^a-z0-9\s-]/gi, ' ')
-    .split(/\s+/)
-    .filter((t) => t.length >= 3);
-
   const hits = new Map();
+  const terms = extractQueryTerms(text);
 
   for (const [key, name] of Object.entries(registry)) {
-    const nameLower = String(name).toLowerCase();
-    const keyLower = key.toLowerCase();
-
-    const nameMatch =
-      lower.includes(nameLower) ||
-      nameLower.includes(lower.trim()) ||
-      tokens.every((t) => nameLower.includes(t) || keyLower.includes(t));
-
-    if (nameMatch) {
+    if (namesMatch(text, name) || namesMatch(text, key)) {
+      hits.set(key, name);
+      continue;
+    }
+    const nameNorm = normalizeName(name);
+    const keyNorm = normalizeName(key);
+    if (
+      terms.some(
+        (t) =>
+          normalizeName(t).length >= 3 &&
+          (nameNorm.includes(normalizeName(t)) || keyNorm.includes(normalizeName(t)))
+      )
+    ) {
       hits.set(key, name);
     }
   }
@@ -92,17 +97,18 @@ export async function resolvePoolEntries(registryHits) {
 
   for (const [key, displayName] of registryHits) {
     if (isPoolPubkey(key)) {
-      const pool = pools.find((p) => p.Pubkey === key);
+      const pool = pools.find((p) => p.Pubkey === key) ?? (await getPoolByPubkey(key));
       resolved.push({ pubkey: key, displayName, pool });
       continue;
     }
 
     const slug = key.toLowerCase();
-    const pool = pools.find(
-      (p) =>
-        p.Slug?.toLowerCase() === slug ||
-        p.Name?.toLowerCase() === slug.replace(/-/g, ' ')
-    );
+    const pool =
+      pools.find(
+        (p) =>
+          p.Slug?.toLowerCase() === slug ||
+          normalizeName(p.Name) === normalizeName(slug)
+      ) ?? null;
     if (pool) {
       resolved.push({ pubkey: pool.Pubkey, displayName, pool });
     } else {
@@ -121,19 +127,25 @@ export async function resolvePoolEntries(registryHits) {
 
 export async function searchPoolsByName(text) {
   const pools = await fetchAllPools();
-  const lower = text.toLowerCase();
-  const tokens = lower.split(/\s+/).filter((t) => t.length >= 2);
+  const terms = extractQueryTerms(text);
 
-  return pools
-    .filter((p) => {
-      const name = (p.Name || '').toLowerCase();
-      const slug = (p.Slug || '').toLowerCase();
-      return (
-        tokens.every((t) => name.includes(t) || slug.includes(t)) ||
-        name.includes(lower.trim())
-      );
+  const scored = pools
+    .map((p) => {
+      const name = p.Name || '';
+      const slug = p.Slug || '';
+      let score = 0;
+      if (namesMatch(text, name) || namesMatch(text, slug)) score += 10;
+      for (const t of terms) {
+        const tn = normalizeName(t);
+        if (tn.length < 3) continue;
+        if (normalizeName(name).includes(tn) || normalizeName(slug).includes(tn)) score += 5;
+      }
+      return { pool: p, score };
     })
-    .slice(0, 5);
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  return scored.slice(0, 5).map((x) => x.pool);
 }
 
 export async function getProtocolSummary() {

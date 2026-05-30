@@ -13,7 +13,7 @@ You receive live data from the Access Protocol Hub API (go-api.accessprotocol.co
 
 Response rules:
 - For casual greetings only (gm, hi, halo): reply in 1–2 short sentences — mirror their greeting, then ask what you can help with. No lists, no protocol overview, no stats.
-- For real questions: answer that topic only. Be concise unless they ask for detail. Use live data when present; do not invent pool stats.
+- For real questions: answer that topic only. Be concise unless they ask for detail. Use live data when present; do not invent pool stats. If live data lists a creator, they exist on Access Protocol — do not say they are missing.
 - Match the user's language. Use clean Markdown without backslash escapes when formatting longer answers.`;
 
 export async function createChatCompletion({ messages, model }) {

@@ -64,14 +64,21 @@ export async function buildAccessContext(userMessage) {
   }
 
   const registryHits = searchRegistryByText(text);
+  const poolMatches = await searchPoolsByName(text);
+
   if (registryHits.size > 0) {
     const entries = (await resolvePoolEntries(registryHits)).slice(0, 4);
     for (const entry of entries) {
       sections.push(await formatPoolContext(entry));
     }
-  } else {
-    const poolMatches = await searchPoolsByName(text);
+  }
+
+  if (poolMatches.length > 0) {
+    const seenPubkeys = new Set(
+      sections.join('').match(/`[1-9A-HJ-NP-Za-km-z]{32,44}`/g)?.map((m) => m.slice(1, -1)) ?? []
+    );
     for (const pool of poolMatches.slice(0, 3)) {
+      if (seenPubkeys.has(pool.Pubkey)) continue;
       sections.push(
         await formatPoolContext({
           pubkey: pool.Pubkey,
@@ -82,7 +89,8 @@ export async function buildAccessContext(userMessage) {
     }
   }
 
-  if (wantsProtocolOverview(text) || sections.length <= 2) {
+  const hasCreatorMatch = registryHits.size > 0 || poolMatches.length > 0;
+  if (!hasCreatorMatch && (wantsProtocolOverview(text) || sections.length <= 2)) {
     try {
       const summary = await getProtocolSummary();
       sections.push(

@@ -5,12 +5,16 @@ const MIMO_CHAT_URL =
 const DEFAULT_MODEL = process.env.MIMO_MODEL || 'mimo-v2.5-pro';
 
 import { buildAccessContext } from './accessContext.js';
+import { getCasualGreetingReply, isCasualGreeting } from './greeting.js';
 
 const ACCIO_SYSTEM_PROMPT = `You are Accio AI, a helpful assistant inside the Accio dashboard for the Access Protocol ecosystem on Solana.
 You help creators and stakers understand Access Protocol, staking, campaigns, and on-chain analytics.
 You receive live data from the Access Protocol Hub API (go-api.accessprotocol.co) injected below when relevant.
-Answer in the same language the user writes in. Be concise, friendly, and accurate. Use the live data when present; do not invent pool stats.
-Format replies with clean Markdown (**, lists, ### headings) without backslash escapes.`;
+
+Response rules:
+- For casual greetings only (gm, hi, halo): reply in 1–2 short sentences — mirror their greeting, then ask what you can help with. No lists, no protocol overview, no stats.
+- For real questions: answer that topic only. Be concise unless they ask for detail. Use live data when present; do not invent pool stats.
+- Match the user's language. Use clean Markdown without backslash escapes when formatting longer answers.`;
 
 export async function createChatCompletion({ messages, model }) {
   const apiKey = process.env.MIMO_API_KEY;
@@ -23,6 +27,15 @@ export async function createChatCompletion({ messages, model }) {
   }
 
   const lastUser = [...messages].reverse().find((m) => m.role === 'user');
+
+  if (lastUser?.content && isCasualGreeting(lastUser.content)) {
+    return {
+      role: 'assistant',
+      content: getCasualGreetingReply(lastUser.content),
+      model: model || DEFAULT_MODEL,
+    };
+  }
+
   let accessContext = '';
   if (lastUser?.content) {
     try {

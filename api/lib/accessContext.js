@@ -7,6 +7,7 @@ import {
   searchPoolsByName,
   searchRegistryByText,
 } from './accessProtocol.js';
+import { isCasualGreeting } from './greeting.js';
 
 const SOLANA_ADDRESS_RE = /\b[1-9A-HJ-NP-Za-km-z]{32,44}\b/g;
 
@@ -23,6 +24,7 @@ function wantsProtocolOverview(text) {
 
 export async function buildAccessContext(userMessage) {
   if (!userMessage?.trim()) return '';
+  if (isCasualGreeting(userMessage)) return '';
 
   const sections = [];
   const text = userMessage.trim();

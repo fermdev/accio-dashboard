@@ -111,16 +111,13 @@ const Home = ({ onExplore, onNavigate }) => {
 
           <ScrollReveal direction="up" delay={80}>
             <p className="text-primary text-xs font-bold uppercase tracking-[0.25em] mb-4">
-              Access Protocol
+              ACCIO
             </p>
           </ScrollReveal>
 
           <ScrollReveal direction="up" delay={160}>
             <h1 className="text-4xl md:text-6xl font-medium text-slate-900 dark:text-white tracking-tight mb-4">
-              Everything in one place{' '}
-              <span className="font-logo">
-                acc<span className="text-primary">io</span>
-              </span>
+              Everything in one place
             </h1>
           </ScrollReveal>
 

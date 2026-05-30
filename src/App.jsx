@@ -7,8 +7,8 @@ import Workspace from './components/Workspace';
 import Campaigns from './components/Campaigns';
 import Footer from './components/Footer';
 import ComingSoon from './components/ComingSoon';
-import JupiterSwap from './components/JupiterSwap';
 import AccioChat from './components/AccioChat';
+import Home from './components/Home';
 import { useAccessPool } from './hooks/useAccessPool';
 import { useSubscriber } from './hooks/useSubscriber';
 import { useExport } from './hooks/useExport';
@@ -29,7 +29,7 @@ function App() {
   } = useExport();
   const [theme, setTheme] = useState('dark');
   const [mobileTab, setMobileTab] = useState('edit'); // 'edit' | 'preview'
-  const [currentView, setCurrentView] = useState('editor'); // 'editor' | 'dashboard' | 'campaign' | 'analytics'
+  const [currentView, setCurrentView] = useState('home');
   
   const [customizer, setCustomizer] = useState({
     type: 'creator',
@@ -160,7 +160,12 @@ function App() {
 
       {/* Desktop layout */}
       <div className="hidden md:flex flex-1 overflow-hidden">
-        {currentView === 'editor' ? (
+        {currentView === 'home' ? (
+          <Home
+            onExplore={() => setCurrentView('dashboard')}
+            onNavigate={setCurrentView}
+          />
+        ) : currentView === 'editor' ? (
           <>
             <Sidebar 
               inputAddress={inputAddress}
@@ -181,8 +186,6 @@ function App() {
           </>
         ) : currentView === 'dashboard' ? (
           <AccioChat key="accio-chat-desktop" />
-        ) : currentView === 'market' ? (
-          <JupiterSwap key="jupiter-market-desktop" />
         ) : currentView === 'campaign' ? (
           <Campaigns key="campaigns-desktop" />
         ) : (
@@ -192,7 +195,12 @@ function App() {
 
       {/* Mobile layout */}
       <div className="flex md:hidden flex-1 overflow-hidden flex-col">
-        {currentView === 'editor' ? (
+        {currentView === 'home' ? (
+          <Home
+            onExplore={() => setCurrentView('dashboard')}
+            onNavigate={setCurrentView}
+          />
+        ) : currentView === 'editor' ? (
           <div className="flex-1 overflow-y-auto">
             <Sidebar 
               inputAddress={inputAddress}
@@ -211,19 +219,6 @@ function App() {
           </div>
         ) : currentView === 'dashboard' ? (
           <AccioChat key="accio-chat-mobile" />
-        ) : currentView === 'market' ? (
-          <>
-            <JupiterSwap key="jupiter-market-mobile" />
-            <div className="flex border-t border-primary/20 bg-white dark:bg-background-dark shrink-0">
-              <button
-                onClick={() => setCurrentView('editor')}
-                className="flex-1 flex flex-col items-center justify-center py-3 gap-1 text-[10px] font-bold text-slate-500 uppercase tracking-widest transition-colors"
-              >
-                <span className="material-symbols-outlined text-lg">arrow_back</span>
-                Back to Editor
-              </button>
-            </div>
-          </>
         ) : currentView === 'campaign' ? (
           <Campaigns key="campaigns-mobile" />
         ) : (

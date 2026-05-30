@@ -130,3 +130,125 @@ body {
     flex: 1;
     min-width: 0;
 }
+
+/* Home — floating Accio logos */
+.home-logo-field {
+    isolation: isolate;
+}
+
+.home-floating-logo {
+    position: absolute;
+    object-fit: contain;
+    will-change: transform;
+    transform: rotate(var(--float-rotate, 0deg));
+    animation-duration: var(--float-duration, 24s);
+    animation-delay: var(--float-delay, 0s);
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    filter: drop-shadow(0 0 20px rgba(101, 145, 255, 0.15));
+}
+
+.home-floating-logo--a {
+    animation-name: home-float-a;
+}
+
+.home-floating-logo--b {
+    animation-name: home-float-b;
+}
+
+.home-floating-logo--c {
+    animation-name: home-float-c;
+}
+
+@keyframes home-float-a {
+    0%,
+    100% {
+        transform: translate(0, 0) rotate(var(--float-rotate, 0deg)) scale(1);
+    }
+    25% {
+        transform: translate(14px, -20px) rotate(calc(var(--float-rotate, 0deg) + 12deg)) scale(1.05);
+    }
+    50% {
+        transform: translate(-10px, 12px) rotate(calc(var(--float-rotate, 0deg) - 8deg)) scale(0.95);
+    }
+    75% {
+        transform: translate(8px, 16px) rotate(calc(var(--float-rotate, 0deg) + 6deg)) scale(1.02);
+    }
+}
+
+@keyframes home-float-b {
+    0%,
+    100% {
+        transform: translate(0, 0) rotate(var(--float-rotate, 0deg)) scale(1);
+    }
+    33% {
+        transform: translate(-16px, 14px) rotate(calc(var(--float-rotate, 0deg) - 14deg)) scale(1.06);
+    }
+    66% {
+        transform: translate(18px, -8px) rotate(calc(var(--float-rotate, 0deg) + 10deg)) scale(0.94);
+    }
+}
+
+@keyframes home-float-c {
+    0%,
+    100% {
+        transform: translate(0, 0) rotate(var(--float-rotate, 0deg)) scale(1);
+    }
+    20% {
+        transform: translate(10px, 18px) rotate(calc(var(--float-rotate, 0deg) + 8deg)) scale(0.96);
+    }
+    55% {
+        transform: translate(-14px, -12px) rotate(calc(var(--float-rotate, 0deg) - 12deg)) scale(1.04);
+    }
+    80% {
+        transform: translate(6px, -16px) rotate(calc(var(--float-rotate, 0deg) + 4deg)) scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-floating-logo {
+        animation: none;
+    }
+}
+
+/* Home — scroll reveal */
+.home-reveal {
+    opacity: 0;
+    transition:
+        opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+}
+
+.home-reveal--up {
+    transform: translateY(56px);
+}
+
+.home-reveal--down {
+    transform: translateY(-40px);
+}
+
+.home-reveal--left {
+    transform: translateX(-48px);
+}
+
+.home-reveal--right {
+    transform: translateX(48px);
+}
+
+.home-reveal--fade {
+    transform: none;
+}
+
+.home-reveal--visible {
+    opacity: 1;
+    transform: translate(0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}

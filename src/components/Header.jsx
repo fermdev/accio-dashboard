@@ -5,8 +5,8 @@ const Header = ({ onExport, currentView, setCurrentView, theme, toggleTheme }) =
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navItems = [
+    { id: 'home', label: 'Home' },
     { id: 'dashboard', label: 'Dashboard' },
-    { id: 'market', label: 'Market' },
     { id: 'editor', label: 'Editor' },
     { id: 'campaign', label: 'Campaign' },
     { id: 'analytics', label: 'Analytics' },
@@ -21,12 +21,19 @@ const Header = ({ onExport, currentView, setCurrentView, theme, toggleTheme }) =
   return (
     <header className="relative flex items-center justify-between border-b border-primary/20 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-4 md:px-8 py-3 md:py-4 z-50 shrink-0">
       <div className="flex items-center gap-3">
-        <div className="size-8 rounded-lg flex items-center justify-center overflow-hidden">
-          <img src={iconLogo} alt="Logo" className="w-full h-full object-contain" />
-        </div>
-        <h2 className="text-2xl tracking-tight text-slate-900 dark:text-white font-logo">
-          acc<span className="text-primary">io</span>
-        </h2>
+        <button
+          type="button"
+          onClick={() => setCurrentView('home')}
+          className="flex items-center gap-3 hover:opacity-90 transition-opacity"
+          aria-label="Go to home"
+        >
+          <div className="size-8 rounded-lg flex items-center justify-center overflow-hidden">
+            <img src={iconLogo} alt="Logo" className="w-full h-full object-contain" />
+          </div>
+          <h2 className="text-2xl tracking-tight text-slate-900 dark:text-white font-logo">
+            acc<span className="text-primary">io</span>
+          </h2>
+        </button>
       </div>
       
       {/* Desktop Navigation */}

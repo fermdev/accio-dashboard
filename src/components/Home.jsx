@@ -117,7 +117,7 @@ const Home = ({ onExplore, onNavigate }) => {
 
           <ScrollReveal direction="up" delay={160}>
             <h1 className="text-4xl md:text-6xl font-medium text-slate-900 dark:text-white tracking-tight mb-4">
-              Welcome to{' '}
+              Your tools for{' '}
               <span className="font-logo">
                 acc<span className="text-primary">io</span>
               </span>

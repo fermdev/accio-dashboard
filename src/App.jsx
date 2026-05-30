@@ -27,7 +27,11 @@ function App() {
     exportError,
     setExportError 
   } = useExport();
-  const [theme, setTheme] = useState('dark');
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem('accio-theme');
+    if (saved === 'light' || saved === 'dark') return saved;
+    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  });
   const [mobileTab, setMobileTab] = useState('edit'); // 'edit' | 'preview'
   const [currentView, setCurrentView] = useState('home');
   
@@ -52,6 +56,7 @@ function App() {
     } else {
       document.documentElement.classList.remove('dark');
     }
+    localStorage.setItem('accio-theme', theme);
   }, [theme]);
 
   const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');

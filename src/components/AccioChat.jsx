@@ -9,7 +9,7 @@ function MessageBubble({ message }) {
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-6`}>
       <div
-        className={`max-w-[85%] md:max-w-[70%] rounded-2xl px-5 py-3 ${
+        className={`max-w-[95%] md:max-w-[80%] lg:max-w-[70%] rounded-2xl px-5 py-3 ${
           isUser
             ? 'bg-primary/20 border border-primary/30'
             : 'bg-white/5 border border-white/10'

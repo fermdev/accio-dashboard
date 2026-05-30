@@ -8,6 +8,7 @@ import {
   searchRegistryByText,
 } from './accessProtocol.js';
 import { isCasualGreeting } from './greeting.js';
+import { searchKnowledgeBase } from './knowledgeBase.js';
 
 const SOLANA_ADDRESS_RE = /\b[1-9A-HJ-NP-Za-km-z]{32,44}\b/g;
 
@@ -40,6 +41,16 @@ export async function buildAccessContext(userMessage) {
       '- Users stake **ACS** tokens into creator **Stake Pools** for content access and rewards.',
     ].join('\n')
   );
+
+  const kbMatches = searchKnowledgeBase(text);
+  if (kbMatches.length > 0) {
+    sections.push(
+      [
+        '### Internal Knowledge Base (Team & Protocol Facts)',
+        ...kbMatches
+      ].join('\n')
+    );
+  }
 
   const addresses = [...new Set(text.match(SOLANA_ADDRESS_RE) || [])];
 

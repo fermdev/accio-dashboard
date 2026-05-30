@@ -25,17 +25,20 @@ export function isCasualGreeting(text) {
 export function getCasualGreetingReply(text) {
   const t = text.trim().toLowerCase();
 
+  // If Indonesian greetings
   if (/selamat|pagi|siang|sore|malam|^halo|^hai/.test(t)) {
-    return 'Halo! Ada yang bisa dibantu?';
+    return 'Halo! Ada yang bisa dibantu hari ini?';
   }
 
-  if (/^gn|good\s*night|selamat\s*malam/.test(t)) {
-    return 'gn! Ada yang bisa dibantu?';
+  // If gm/gn
+  if (/^gn|good\s*night/.test(t)) {
+    return 'gn! How can I help you?';
   }
 
-  if (/^gm|good\s*morning|^pagi/.test(t)) {
-    return 'gm! Ada yang bisa dibantu?';
+  if (/^gm|good\s*morning/.test(t)) {
+    return 'gm! How can I help you?';
   }
 
-  return 'Hey! Ada yang bisa dibantu?';
+  // Default English
+  return 'Hey! How can I help you today?';
 }

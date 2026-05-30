@@ -175,7 +175,7 @@ const AccioChat = () => {
                   Ask <span className="text-primary font-logo">accio</span>
                 </h1>
                 <p className="text-slate-500 text-sm max-w-md">
-                  Your AI assistant for Access Protocol — powered by Xiaomi MiMo on the backend.
+                  Your AI assistant for Access Protocol.
                 </p>
               </div>
             ) : (

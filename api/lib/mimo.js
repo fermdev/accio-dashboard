@@ -62,11 +62,10 @@ export async function createChatCompletion({ messages, model }) {
     body: JSON.stringify({
       model: model || DEFAULT_MODEL,
       messages: payloadMessages,
-      max_completion_tokens: 2048,
+      max_tokens: 2048,
       temperature: 0.7,
       top_p: 0.95,
       stream: false,
-      thinking: { type: 'disabled' },
     }),
   });
 

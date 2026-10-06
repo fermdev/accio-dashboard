@@ -1,9 +1,8 @@
-/** Models available on your Xiaomi MiMo token plan (chat) */
+/** Models available on Jerouter API */
 export const MIMO_MODEL_OPTIONS = [
-  { id: 'mimo-v2.5-pro', label: '2.5 Pro' },
-  { id: 'mimo-v2.5', label: '2.5' },
-  { id: 'mimo-v2-pro', label: '2 Pro' },
-  { id: 'mimo-v2-omni', label: '2 Omni' },
+  { id: 'gpt-4o-mini', label: 'GPT-4o Mini' },
+  { id: 'gpt-4o', label: 'GPT-4o' },
+  { id: 'claude-3-5-sonnet-20241022', label: 'Claude 3.5 Sonnet' },
 ];
 
-export const MIMO_DEFAULT_MODEL = 'mimo-v2.5-pro';
+export const MIMO_DEFAULT_MODEL = 'gpt-4o-mini';
